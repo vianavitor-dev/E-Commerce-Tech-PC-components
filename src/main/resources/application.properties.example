@@ -1,0 +1,12 @@
+spring.application.name=ecommerce-tech
+server.port=8081
+
+# Database Connection
+spring.datasource.url=jdbc:mysql://localhost:3306/database
+spring.datasource.username=user
+spring.datasource.password=password
+
+# Flyway Configuration
+spring.flyway.enabled=true
+
+spring.jpa.hibernate.ddl-auto=none
