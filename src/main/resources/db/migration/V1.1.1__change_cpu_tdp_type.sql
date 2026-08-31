@@ -1,0 +1,2 @@
+ALTER TABLE cpus
+MODIFY COLUMN tdp_watts SMALLINT;
