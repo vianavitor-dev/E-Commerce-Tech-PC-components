@@ -1,6 +1,6 @@
 package com.vianavitor.ecommerce_tech.models;
 
-import com.vianavitor.ecommerce_tech.models.aux.enums.PsuEfficiencyRatting;
+import com.vianavitor.ecommerce_tech.models.aux.enums.PsuEfficiencyRating;
 import com.vianavitor.ecommerce_tech.models.aux.enums.PsuFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.PsuModularity;
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ public class Psu extends Product {
 
     @Column(name = "efficiency_rating")
     @Enumerated(EnumType.STRING)
-    private PsuEfficiencyRatting efficiencyRating = PsuEfficiencyRatting.STANDARD;
+    private PsuEfficiencyRating efficiencyRating = PsuEfficiencyRating.STANDARD;
 
     @Enumerated(EnumType.STRING)
     private PsuModularity modularity;
@@ -39,11 +39,11 @@ public class Psu extends Product {
         this.wattageSupply = wattageSupply;
     }
 
-    public PsuEfficiencyRatting getEfficiencyRatting() {
+    public PsuEfficiencyRating getEfficiencyRatting() {
         return efficiencyRating;
     }
 
-    public void setEfficiencyRatting(PsuEfficiencyRatting efficiencyRating) {
+    public void setEfficiencyRatting(PsuEfficiencyRating efficiencyRating) {
         this.efficiencyRating = efficiencyRating;
     }
 

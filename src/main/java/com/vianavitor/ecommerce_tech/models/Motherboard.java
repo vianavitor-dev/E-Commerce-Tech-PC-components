@@ -1,6 +1,6 @@
 package com.vianavitor.ecommerce_tech.models;
 
-import com.vianavitor.ecommerce_tech.models.aux.enums.MotherboardFomFactor;
+import com.vianavitor.ecommerce_tech.models.aux.enums.MotherboardFormFactor;
 import jakarta.persistence.*;
 
 @Entity(name = "motherboards")
@@ -15,7 +15,7 @@ public class Motherboard extends Product {
     private byte m2Slots;
 
     @Enumerated(EnumType.STRING)
-    private MotherboardFomFactor formFactor = MotherboardFomFactor.ATX;
+    private MotherboardFormFactor formFactor = MotherboardFormFactor.ATX;
 
     public String getModel() {
         return model;
@@ -81,11 +81,11 @@ public class Motherboard extends Product {
         this.m2Slots = m2Slots;
     }
 
-    public MotherboardFomFactor getFormFactor() {
+    public MotherboardFormFactor getFormFactor() {
         return formFactor;
     }
 
-    public void setFormFactor(MotherboardFomFactor formFactor) {
+    public void setFormFactor(MotherboardFormFactor formFactor) {
         this.formFactor = formFactor;
     }
 }

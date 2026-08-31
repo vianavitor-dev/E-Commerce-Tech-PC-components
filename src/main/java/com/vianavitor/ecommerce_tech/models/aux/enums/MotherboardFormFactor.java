@@ -1,6 +1,6 @@
 package com.vianavitor.ecommerce_tech.models.aux.enums;
 
-public enum MotherboardFomFactor {
+public enum MotherboardFormFactor {
     MINI_ITX("Mini-ITX"),
     MATX("mATX"),
     ATX("ATX"),
@@ -8,7 +8,7 @@ public enum MotherboardFomFactor {
 
     private String formattedName;
 
-    MotherboardFomFactor(String formattedName) {
+    MotherboardFormFactor(String formattedName) {
         this.formattedName = formattedName;
     }
 
