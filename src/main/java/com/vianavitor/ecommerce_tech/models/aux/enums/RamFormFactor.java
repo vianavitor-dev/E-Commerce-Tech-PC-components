@@ -4,7 +4,7 @@ public enum RamFormFactor {
     DIMM,
     SO_DIMM;
 
-    public String getFormattedName() {
+    public String toString() {
         return this.name().replace("_", "-");
     }
 }

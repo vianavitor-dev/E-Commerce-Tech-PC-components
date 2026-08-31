@@ -10,7 +10,7 @@ public enum SsdProtocol {
         this.formattedName = formattedName;
     }
 
-    public String getFormattedName() {
+    public String toString() {
         return formattedName;
     }
 }

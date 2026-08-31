@@ -11,18 +11,11 @@ import java.util.stream.Stream;
 public class SsdProtocolConverter implements AttributeConverter<SsdProtocol, String> {
     @Override
     public String convertToDatabaseColumn(SsdProtocol attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        return attribute.getFormattedName();
+        return ConverterAux.convertToDBColumn(attribute);
     }
 
     @Override
     public SsdProtocol convertToEntityAttribute(String dbData) {
-        return Stream.of(SsdProtocol.values())
-                .filter(form -> form.getFormattedName().equals(dbData))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        return ConverterAux.convertToEntityAtt(dbData, SsdProtocol.class);
     }
 }

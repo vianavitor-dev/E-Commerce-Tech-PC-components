@@ -11,18 +11,11 @@ import java.util.stream.Stream;
 public class RamFormFactorConverter implements AttributeConverter<RamFormFactor, String> {
     @Override
     public String convertToDatabaseColumn(RamFormFactor attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        return attribute.getFormattedName();
+        return ConverterAux.convertToDBColumn(attribute);
     }
 
     @Override
     public RamFormFactor convertToEntityAttribute(String dbData) {
-        return Stream.of(RamFormFactor.values())
-                .filter(form -> form.getFormattedName().equals(dbData))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        return ConverterAux.convertToEntityAtt(dbData, RamFormFactor.class);
     }
 }

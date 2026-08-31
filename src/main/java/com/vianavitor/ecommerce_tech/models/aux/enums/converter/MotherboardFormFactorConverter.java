@@ -10,18 +10,11 @@ import java.util.stream.Stream;
 public class MotherboardFormFactorConverter implements AttributeConverter<MotherboardFormFactor, String> {
     @Override
     public String convertToDatabaseColumn(MotherboardFormFactor attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        return attribute.getFormattedName();
+        return ConverterAux.convertToDBColumn(attribute);
     }
 
     @Override
     public MotherboardFormFactor convertToEntityAttribute(String dbData) {
-        return Stream.of(MotherboardFormFactor.values())
-                .filter(form -> form.getFormattedName().equals(dbData))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        return ConverterAux.convertToEntityAtt(dbData, MotherboardFormFactor.class);
     }
 }

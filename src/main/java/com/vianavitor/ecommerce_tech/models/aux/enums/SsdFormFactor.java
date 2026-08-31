@@ -13,7 +13,7 @@ public enum SsdFormFactor {
         this.formattedName = formattedName;
     }
 
-    public String getFormattedName() {
+    public String toString() {
         return formattedName;
     }
 }

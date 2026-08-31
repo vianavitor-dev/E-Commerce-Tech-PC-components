@@ -8,7 +8,7 @@ public enum PsuEfficiencyRating {
     PLATINUM,
     TITANIUM;
 
-    public String getFormattedName() {
+    public String toString() {
         char firstCharCapitalized = this.name().toLowerCase().charAt(0);
         String restInLower = this.name().substring(1).toLowerCase();
 

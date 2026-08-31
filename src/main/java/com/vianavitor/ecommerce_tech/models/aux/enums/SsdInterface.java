@@ -10,7 +10,7 @@ public enum SsdInterface {
         this.formattedName = formattedName;
     }
 
-    public String getFormattedName() {
+    public String toString() {
         return formattedName;
     }
 }

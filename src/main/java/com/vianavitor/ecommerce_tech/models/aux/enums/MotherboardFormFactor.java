@@ -12,7 +12,8 @@ public enum MotherboardFormFactor {
         this.formattedName = formattedName;
     }
 
-    public String getFormattedName() {
+    @Override
+    public String toString() {
         return this.formattedName;
     }
 }

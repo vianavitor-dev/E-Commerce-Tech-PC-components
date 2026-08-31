@@ -5,7 +5,7 @@ public enum PsuModularity {
     SEMI_MODULAR,
     FULLY_MODULAR;
 
-    public String getFormattedName() {
+    public String toString() {
         return this.name().toLowerCase().replace("_", "-");
     }
 }

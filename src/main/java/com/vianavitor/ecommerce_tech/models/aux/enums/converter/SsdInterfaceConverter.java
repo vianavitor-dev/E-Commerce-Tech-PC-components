@@ -11,18 +11,11 @@ import java.util.stream.Stream;
 public class SsdInterfaceConverter implements AttributeConverter<SsdInterface, String> {
     @Override
     public String convertToDatabaseColumn(SsdInterface attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        return attribute.getFormattedName();
+        return ConverterAux.convertToDBColumn(attribute);
     }
 
     @Override
     public SsdInterface convertToEntityAttribute(String dbData) {
-        return Stream.of(SsdInterface.values())
-                .filter(form -> form.getFormattedName().equals(dbData))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        return ConverterAux.convertToEntityAtt(dbData, SsdInterface.class);
     }
 }
