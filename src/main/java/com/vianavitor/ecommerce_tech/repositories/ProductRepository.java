@@ -2,7 +2,7 @@ package com.vianavitor.ecommerce_tech.repositories;
 
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.vianavitor.ecommerce_tech.repositories.aux.ReadOnlyInterface;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 @NoRepositoryBean
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends ReadOnlyInterface<Product, Integer> {
     Optional<Product> findBySku(String sku);
 
     List<Product> FindByNameContaining(String name);

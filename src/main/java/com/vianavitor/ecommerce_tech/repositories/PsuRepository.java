@@ -1,12 +1,11 @@
 package com.vianavitor.ecommerce_tech.repositories;
 
 import com.vianavitor.ecommerce_tech.models.Psu;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.vianavitor.ecommerce_tech.repositories.aux.ReadOnlyInterface;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface PsuRepository extends JpaRepository<Psu, Integer> {
-    List<Psu> findByModel(String model);
+public interface PsuRepository extends ReadOnlyInterface<Psu, Integer> {
 }
