@@ -1,0 +1,5 @@
+ALTER TABLE products
+ADD COLUMN name VARCHAR(150) NOT NULL DEFAULT 'N/A';
+
+ALTER TABLE users
+ADD CONSTRAINT uc_user_email UNIQUE (email);

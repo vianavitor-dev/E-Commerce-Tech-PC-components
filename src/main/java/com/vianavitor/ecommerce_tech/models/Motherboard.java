@@ -10,7 +10,7 @@ public class Motherboard extends Product {
     private String socket;
     private String ddrGeneration;
     private byte ramSlots;
-    private int maxRamCapacityGb; // TODO: change the data type in the database to 'smallint', and updates this field to matches it
+    private short maxRamCapacityGb;
     private byte sataSlots;
     private byte m2Slots;
 
@@ -57,11 +57,11 @@ public class Motherboard extends Product {
         this.ramSlots = ramSlots;
     }
 
-    public int getMaxRamCapacityGb() {
+    public short getMaxRamCapacityGb() {
         return maxRamCapacityGb;
     }
 
-    public void setMaxRamCapacityGb(int maxRamCapacityGb) {
+    public void setMaxRamCapacityGb(short maxRamCapacityGb) {
         this.maxRamCapacityGb = maxRamCapacityGb;
     }
 
