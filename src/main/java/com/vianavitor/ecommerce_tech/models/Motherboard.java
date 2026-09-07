@@ -14,6 +14,8 @@ public class Motherboard extends Product {
     private byte sataSlots;
     private byte m2Slots;
 
+    // TODO: create a new Entity to implements the motherboards ports
+
     @Enumerated(EnumType.STRING)
     private MotherboardFormFactor formFactor = MotherboardFormFactor.ATX;
 

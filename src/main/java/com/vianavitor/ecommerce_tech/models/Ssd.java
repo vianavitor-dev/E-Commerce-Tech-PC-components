@@ -18,7 +18,7 @@ public class Ssd extends Product {
 
     @Column(name = "form_factor")
     @Enumerated(EnumType.STRING)
-    private SsdFormFactor formFactor = SsdFormFactor.i2_5;
+    private SsdFormFactor formFactor = SsdFormFactor.INCH_2_5;
 
     @Enumerated(EnumType.STRING)
     private SsdProtocol protocol = SsdProtocol.AHCI;

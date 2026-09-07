@@ -2,7 +2,7 @@ package com.vianavitor.ecommerce_tech.models.aux.enums;
 
 public enum SsdFormFactor {
     M2("M.2"),
-    i2_5("2.5"+'"'),
+    INCH_2_5("2.5"+'"'),
     MSATA("mSATA"),
     U2("U.2");
 
