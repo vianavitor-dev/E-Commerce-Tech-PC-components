@@ -2,7 +2,14 @@ package com.vianavitor.ecommerce_tech.models;
 
 import com.vianavitor.ecommerce_tech.models.aux.enums.MotherboardFormFactor;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "motherboards")
 public class Motherboard extends Product {
     private String model;
@@ -18,77 +25,5 @@ public class Motherboard extends Product {
 
     @Enumerated(EnumType.STRING)
     private MotherboardFormFactor formFactor = MotherboardFormFactor.ATX;
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public String getChipset() {
-        return chipset;
-    }
-
-    public void setChipset(String chipset) {
-        this.chipset = chipset;
-    }
-
-    public String getSocket() {
-        return socket;
-    }
-
-    public void setSocket(String socket) {
-        this.socket = socket;
-    }
-
-    public String getDdrGeneration() {
-        return ddrGeneration;
-    }
-
-    public void setDdrGeneration(String ddrGeneration) {
-        this.ddrGeneration = ddrGeneration;
-    }
-
-    public byte getRamSlots() {
-        return ramSlots;
-    }
-
-    public void setRamSlots(byte ramSlots) {
-        this.ramSlots = ramSlots;
-    }
-
-    public short getMaxRamCapacityGb() {
-        return maxRamCapacityGb;
-    }
-
-    public void setMaxRamCapacityGb(short maxRamCapacityGb) {
-        this.maxRamCapacityGb = maxRamCapacityGb;
-    }
-
-    public byte getSataSlots() {
-        return sataSlots;
-    }
-
-    public void setSataSlots(byte sataSlots) {
-        this.sataSlots = sataSlots;
-    }
-
-    public byte getM2Slots() {
-        return m2Slots;
-    }
-
-    public void setM2Slots(byte m2Slots) {
-        this.m2Slots = m2Slots;
-    }
-
-    public MotherboardFormFactor getFormFactor() {
-        return formFactor;
-    }
-
-    public void setFormFactor(MotherboardFormFactor formFactor) {
-        this.formFactor = formFactor;
-    }
 }
 

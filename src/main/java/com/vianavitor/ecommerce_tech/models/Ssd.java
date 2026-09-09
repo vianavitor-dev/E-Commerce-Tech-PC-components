@@ -4,7 +4,13 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdProtocol;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "ssds")
 public class Ssd extends Product {
     private String model;
@@ -28,60 +34,4 @@ public class Ssd extends Product {
 
     @Column(name = "write_speed_mb")
     private short writeSpeedMb;
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public short getCapacityGb() {
-        return capacityGb;
-    }
-
-    public void setCapacityGb(short capacityGb) {
-        this.capacityGb = capacityGb;
-    }
-
-    public SsdInterface getSsdInterface() {
-        return ssdInterface;
-    }
-
-    public void setSsdInterface(SsdInterface ssdInterface) {
-        this.ssdInterface = ssdInterface;
-    }
-
-    public SsdFormFactor getFormFactor() {
-        return formFactor;
-    }
-
-    public void setFormFactor(SsdFormFactor formFactor) {
-        this.formFactor = formFactor;
-    }
-
-    public SsdProtocol getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(SsdProtocol protocol) {
-        this.protocol = protocol;
-    }
-
-    public short getReadSpeedMb() {
-        return readSpeedMb;
-    }
-
-    public void setReadSpeedMb(short readSpeedMb) {
-        this.readSpeedMb = readSpeedMb;
-    }
-
-    public short getWriteSpeedMb() {
-        return writeSpeedMb;
-    }
-
-    public void setWriteSpeedMb(short writeSpeedMb) {
-        this.writeSpeedMb = writeSpeedMb;
-    }
 }
