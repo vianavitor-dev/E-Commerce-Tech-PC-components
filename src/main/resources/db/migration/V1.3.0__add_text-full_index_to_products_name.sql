@@ -1,0 +1,2 @@
+ALTER TABLE products
+ADD FULLTEXT (name);
