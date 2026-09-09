@@ -19,13 +19,9 @@ public class Psu extends Product {
     private short wattageSupply;
 
     @Column(name = "efficiency_rating")
-    @Enumerated(EnumType.STRING)
     private PsuEfficiencyRating efficiencyRating = PsuEfficiencyRating.STANDARD;
-
-    @Enumerated(EnumType.STRING)
     private PsuModularity modularity;
 
     @Column(name = "form_factor")
-    @Enumerated(EnumType.STRING)
     private PsuFormFactor formFactor = PsuFormFactor.ATX;
 }

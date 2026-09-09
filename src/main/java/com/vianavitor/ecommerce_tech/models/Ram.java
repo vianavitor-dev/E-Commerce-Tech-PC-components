@@ -2,9 +2,7 @@ package com.vianavitor.ecommerce_tech.models;
 
 import com.vianavitor.ecommerce_tech.models.aux.enums.RamFormFactor;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +20,5 @@ public class Ram extends Product {
     @Column(name = "frequency_mhz")
     private short frequencyMhz;
     private byte modules;
-
-    @Enumerated(EnumType.STRING)
     private RamFormFactor formFactor = RamFormFactor.DIMM;
 }

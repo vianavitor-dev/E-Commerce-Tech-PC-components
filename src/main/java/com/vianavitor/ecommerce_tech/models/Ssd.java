@@ -1,12 +1,14 @@
 package com.vianavitor.ecommerce_tech.models;
 
+import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdProtocol;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.math.BigDecimal;
+
 
 @Data
 @NoArgsConstructor
@@ -19,14 +21,11 @@ public class Ssd extends Product {
     private short capacityGb;
 
     @Column(name = "interface")
-    @Enumerated(EnumType.STRING)
     private SsdInterface ssdInterface = SsdInterface.SATA;
 
     @Column(name = "form_factor")
-    @Enumerated(EnumType.STRING)
     private SsdFormFactor formFactor = SsdFormFactor.INCH_2_5;
 
-    @Enumerated(EnumType.STRING)
     private SsdProtocol protocol = SsdProtocol.AHCI;
 
     @Column(name = "read_speed_mb")
@@ -34,4 +33,15 @@ public class Ssd extends Product {
 
     @Column(name = "write_speed_mb")
     private short writeSpeedMb;
+
+    public Ssd(String name, String sku, BigDecimal rating, int ratedCount, String brand, ProductCategory category, String shortDescription, String technicalDescription, BigDecimal price, short stock, String model, short capacityGb, SsdInterface ssdInterface, SsdFormFactor formFactor, SsdProtocol protocol, short readSpeedMb, short writeSpeedMb) {
+        super(null, name, sku, rating, ratedCount, brand, category, shortDescription, technicalDescription, price, stock);
+        this.model = model;
+        this.capacityGb = capacityGb;
+        this.ssdInterface = ssdInterface;
+        this.formFactor = formFactor;
+        this.protocol = protocol;
+        this.readSpeedMb = readSpeedMb;
+        this.writeSpeedMb = writeSpeedMb;
+    }
 }
