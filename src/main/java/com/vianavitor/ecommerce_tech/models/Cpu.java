@@ -6,9 +6,11 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @Entity(name = "cpus")
 public class Cpu extends Product {
     private String model;

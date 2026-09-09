@@ -4,9 +4,11 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.MotherboardFormFactor;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @Entity(name = "motherboards")
 public class Motherboard extends Product {
     private String model;

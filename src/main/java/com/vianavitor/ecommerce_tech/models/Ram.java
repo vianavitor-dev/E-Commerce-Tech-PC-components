@@ -4,9 +4,11 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.RamFormFactor;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @Entity(name = "rams")
 public class Ram extends Product {
     private String model;
