@@ -1,9 +1,12 @@
 package com.vianavitor.ecommerce_tech.repositories;
 
+import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
+import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.repositories.aux.ReadOnlyInterface;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,18 +17,24 @@ public interface ProductRepository extends ReadOnlyInterface<Product, Integer> {
     Optional<Product> findBySku(String sku);
 
     @Query(value = """
-            SELECT * 
-            FROM products WHERE MATCH(name) AGAINST(:name)
+            SELECT
+                p.id, p.name, p.category, p.rating,
+                p.rated_count, p.brand, p.price
+            FROM products p
+            WHERE MATCH(p.name) AGAINST(:name)
             """,
             nativeQuery = true)
-    List<Product> findByNameContaining(String name);
+    List<ProductSearchResultsDTO> searchByNameContaining(String name);
 
-    List<Product> findByCategory(ProductCategory category);
+    List<ProductSearchResultsDTO> findByCategory(ProductCategory category);
 
     @Query(value = """
-            SELECT * 
-            FROM products WHERE category = :category AND MATCH(name) AGAINST(:name)
+            SELECT
+                p.id, p.name, p.category, p.rating,
+                p.rated_count, p.brand, p.price
+            FROM products p
+            WHERE p.category = :#{#category.toString()} AND MATCH(p.name) AGAINST(:name)
             """,
             nativeQuery = true)
-    List<Product> findByCategoryAndNameContaining(ProductCategory category, String name);
+    List<ProductSearchResultsDTO> searchByCategoryAndNameContaining(ProductCategory category, String name);
 }
