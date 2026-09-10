@@ -6,6 +6,7 @@ target/
 
 # Custom
 .env
+application-test.properties
 
 ### STS ###
 .apt_generated
