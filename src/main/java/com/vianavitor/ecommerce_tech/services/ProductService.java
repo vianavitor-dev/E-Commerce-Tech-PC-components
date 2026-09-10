@@ -2,6 +2,7 @@ package com.vianavitor.ecommerce_tech.services;
 
 import com.vianavitor.ecommerce_tech.dtos.request.PcComponentsDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.PcCompatibilityCheckResultDTO;
+import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.aux.CompatibleReportDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.aux.PcComponentsReportDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
@@ -29,16 +30,16 @@ public class ProductService {
                 ));
     }
 
-    public List<Product> findByName(String name) {
-        return repository.findByNameContaining(name);
+    public List<ProductSearchResultsDTO> findByName(String name) {
+        return repository.searchByNameContaining(name);
     }
 
-    public List<Product> findByCategory(ProductCategory category) {
+    public List<ProductSearchResultsDTO> findByCategory(ProductCategory category) {
         return repository.findByCategory(category);
     }
 
-    public List<Product> findByCategoryAndName(ProductCategory category, String name) {
-        return repository.findByCategoryAndNameContaining(category, name);
+    public List<ProductSearchResultsDTO> findByCategoryAndName(ProductCategory category, String name) {
+        return repository.searchByCategoryAndNameContaining(category, name);
     }
 
     private int parseStrSocketToNumber(String str) {
