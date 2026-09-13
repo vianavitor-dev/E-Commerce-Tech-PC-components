@@ -17,11 +17,17 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 // TODO: create a Inventory System to manage the products
-// TODO: implement PC components compatibility check
 @Service
 public class ProductService {
     @Autowired
     private ProductRepository repository;
+
+    public Product findById(Integer id) {
+        return repository.findById(id).
+                orElseThrow(() -> new NotFoundResourceException(
+                        "Not found any product with the provided ID code"
+                ));
+    }
 
     public Product findBySku(String sku) {
         return repository.findBySku(sku).
@@ -170,8 +176,6 @@ public class ProductService {
                 if (!(sataSlotsNeeded > motherboard.getSataSlots()) || !(m2SlotsNeeded > motherboard.getM2Slots())) {
                     maxSataSlotsWasExceeded = sataSlotsNeeded > motherboard.getSataSlots();
                     maxM2SlotsWasExceeded = m2SlotsNeeded > motherboard.getM2Slots();
-
-                    continue;
                 }
 
                 String description = null;
@@ -183,7 +187,7 @@ public class ProductService {
                     description = "Your motherboard don't have enough M.2 slots to connect this one";
                 }
 
-                ssdsReport.add(new CompatibleReportDTO(!(maxM2SlotsWasExceeded && maxSataSlotsWasExceeded), ssd.getName(), description));
+                ssdsReport.add(new CompatibleReportDTO(!(maxM2SlotsWasExceeded || maxSataSlotsWasExceeded), ssd.getName(), description));
             }
 
             String template = """
