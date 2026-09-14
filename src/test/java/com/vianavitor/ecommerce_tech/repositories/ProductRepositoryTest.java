@@ -39,7 +39,7 @@ public class ProductRepositoryTest {
     @ServiceConnection
     static MySQLContainer<?> mysql = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
             .withUsername("root")
-            .withPassword("*Apvd1608*")
+            .withPassword("*123*")
             .withDatabaseName("ecommerce_tech");
 
     @Autowired

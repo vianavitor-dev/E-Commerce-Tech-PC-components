@@ -13,4 +13,4 @@ jobs:
           distribution: temurin
 
       - name: "run tests"
-        run: mvn clean test -Dspring.profiles.active=test
+        run: mvn clean test -Dtest=*Test -Dspring.profiles.active=test # runs only the test classes and uses the 'test' profile active
