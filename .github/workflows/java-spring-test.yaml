@@ -10,7 +10,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 25
-          distribution: terumin
+          distribution: temurin
 
       - name: "run tests"
         run: mvn clean test -Dspring.profiles.active=test
