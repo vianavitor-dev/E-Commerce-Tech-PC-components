@@ -2,7 +2,6 @@ package com.vianavitor.ecommerce_tech.repositories;
 
 
 import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
-import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.Ssd;
 import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
@@ -10,23 +9,16 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdProtocol;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
+import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
@@ -45,7 +37,10 @@ public class ProductRepositoryTest {
 
     @Container
     @ServiceConnection
-    static MySQLContainer container = new MySQLContainer(DockerImageName.parse("mysql:latest"));
+    static MySQLContainer<?> mysql = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
+            .withUsername("root")
+            .withPassword("*Apvd1608*")
+            .withDatabaseName("ecommerce_tech");
 
     @Autowired
     private EntityManager entityManager;
