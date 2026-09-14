@@ -1,17 +1,17 @@
 ALTER TABLE cpus
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
 
 ALTER TABLE gpus
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
 
 ALTER TABLE power_supply_units
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
 
 ALTER TABLE rams
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
 
 ALTER TABLE ssds
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
 
 ALTER TABLE motherboards
-RENAME COLUMN product_id TO id;
+CHANGE product_id id INT;
