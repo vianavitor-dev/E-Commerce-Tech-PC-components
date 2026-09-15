@@ -11,9 +11,11 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.repositories.ProductRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 // TODO: create a Inventory System to manage the products
@@ -22,14 +24,14 @@ public class ProductService {
     @Autowired
     private ProductRepository repository;
 
-    public Product findById(Integer id) {
+    public Product findById(Integer id) throws NotFoundResourceException {
         return repository.findById(id).
                 orElseThrow(() -> new NotFoundResourceException(
                         "Not found any product with the provided ID code"
                 ));
     }
 
-    public Product findBySku(String sku) {
+    public Product findBySku(String sku) throws NotFoundResourceException {
         return repository.findBySku(sku).
                 orElseThrow(() -> new NotFoundResourceException(
                         "Not found any product with the provided SKU code"
@@ -46,6 +48,69 @@ public class ProductService {
 
     public List<ProductSearchResultsDTO> findByCategoryAndName(ProductCategory category, String name) {
         return repository.searchByCategoryAndNameContaining(category, name);
+    }
+
+//    @AllArgsConstructor
+    public static class ProductSearchResultsDTOImpl implements ProductSearchResultsDTO {
+        Integer id;
+        String name;
+        ProductCategory category;
+        BigDecimal rating;
+        int ratedCount;
+        String brand;
+        BigDecimal price;
+
+        public ProductSearchResultsDTOImpl(Product p) {
+            this.id = p.getId();
+            this.name = p.getName();
+            this.category = p.getCategory();
+            this.rating = p.getRating();
+            this.ratedCount = p.getRatedCount();
+            this.brand = p.getBrand();
+            this.price = p.getPrice();
+        }
+
+        @Override
+        public Integer getId() {
+            return id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public ProductCategory getCategory() {
+            return category;
+        }
+
+        @Override
+        public BigDecimal getRating() {
+            return rating;
+        }
+
+        @Override
+        public int getRatedCount() {
+            return ratedCount;
+        }
+
+        @Override
+        public String getBrand() {
+            return brand;
+        }
+
+        @Override
+        public BigDecimal getPrice() {
+            return price;
+        }
+    }
+
+    public List<? extends ProductSearchResultsDTO> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(ProductSearchResultsDTOImpl::new)
+                .toList();
     }
 
     private int parseStrSocketToNumber(String str) {
