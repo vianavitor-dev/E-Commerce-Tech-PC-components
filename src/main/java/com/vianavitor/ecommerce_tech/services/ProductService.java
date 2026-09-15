@@ -238,21 +238,24 @@ public class ProductService {
                     sataSlotsNeeded ++;
                 }
 
-                if (!(sataSlotsNeeded > motherboard.getSataSlots()) || !(m2SlotsNeeded > motherboard.getM2Slots())) {
+                if (!(maxSataSlotsWasExceeded) || !(maxM2SlotsWasExceeded)) {
                     maxSataSlotsWasExceeded = sataSlotsNeeded > motherboard.getSataSlots();
                     maxM2SlotsWasExceeded = m2SlotsNeeded > motherboard.getM2Slots();
                 }
 
                 String description = null;
 
-                if (maxSataSlotsWasExceeded) {
+                if (maxSataSlotsWasExceeded && ssd.getSsdInterface().equals(SsdInterface.SATA)) {
                     description = "Your motherboard don't have enough SATA slots to connect this one";
                 }
-                if (maxM2SlotsWasExceeded) {
+                if (maxM2SlotsWasExceeded && ssd.getSsdInterface().equals(SsdInterface.PCIE)) {
                     description = "Your motherboard don't have enough M.2 slots to connect this one";
                 }
 
-                ssdsReport.add(new CompatibleReportDTO(!(maxM2SlotsWasExceeded || maxSataSlotsWasExceeded), ssd.getName(), description));
+                boolean isCurrentSsdIncompatible = (maxM2SlotsWasExceeded && ssd.getSsdInterface().equals(SsdInterface.PCIE))
+                        || (maxSataSlotsWasExceeded && ssd.getSsdInterface().equals(SsdInterface.SATA));
+                
+                ssdsReport.add(new CompatibleReportDTO(!(isCurrentSsdIncompatible), ssd.getName(), description));
             }
 
             String template = """
