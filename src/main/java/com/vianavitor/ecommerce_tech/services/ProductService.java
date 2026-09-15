@@ -120,7 +120,7 @@ public class ProductService {
 
         // Remove the 'A' in case it is an Intel socket
         if (str.charAt(2) == 'A') {
-            sb.deleteCharAt(2);
+            sb.deleteCharAt(0);
         }
 
         try {
