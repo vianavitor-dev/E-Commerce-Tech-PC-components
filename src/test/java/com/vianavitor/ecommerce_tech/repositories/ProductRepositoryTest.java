@@ -60,15 +60,15 @@ public class ProductRepositoryTest {
                 "",
                 "",
                 BigDecimal.valueOf(638.22),
-                (short) 10,
+                Short.valueOf("10"),
                 // SSD values
                 "ASU650SS-512GT-R",
-                (byte) 512,
+                Short.valueOf("512"),
                 SsdInterface.SATA,
                 SsdFormFactor.INCH_2_5,
                 SsdProtocol.AHCI,
-                (short) 520,
-                (short) 420
+                Short.valueOf("520"),
+                Short.valueOf("420")
         );
 
         product = transactionTemplate.execute(status -> {

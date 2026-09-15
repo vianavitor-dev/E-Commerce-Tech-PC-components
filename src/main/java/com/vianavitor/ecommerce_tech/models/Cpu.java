@@ -16,8 +16,8 @@ public class Cpu extends Product {
     private String model;
     private String manufacturer;
     private String socket;
-    private byte threads;
-    private byte cores;
+    private Byte threads;
+    private Byte cores;
 
     @Column(name = "base_clock", precision = 3, scale = 1)
     private BigDecimal baseClock;
@@ -26,5 +26,5 @@ public class Cpu extends Product {
     private BigDecimal boostClock;
 
     @Column(name = "tdp_watts")
-    private short tdpWatts;
+    private Short tdpWatts;
 }

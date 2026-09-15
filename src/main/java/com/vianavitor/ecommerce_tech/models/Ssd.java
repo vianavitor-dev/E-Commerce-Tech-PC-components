@@ -19,7 +19,7 @@ public class Ssd extends Product {
     private String model;
 
     @Column(name = "capacity_gb")
-    private short capacityGb;
+    private Short capacityGb;
 
     @Column(name = "interface")
     private SsdInterface ssdInterface = SsdInterface.SATA;
@@ -30,13 +30,13 @@ public class Ssd extends Product {
     private SsdProtocol protocol = SsdProtocol.AHCI;
 
     @Column(name = "read_speed_mb")
-    private short readSpeedMb;
+    private Short readSpeedMb;
 
     @Column(name = "write_speed_mb")
-    private short writeSpeedMb;
+    private Short writeSpeedMb;
 
-    public Ssd(String name, String sku, BigDecimal rating, int ratedCount, String brand, ProductCategory category, String shortDescription, String technicalDescription, BigDecimal price, short stock, String model, short capacityGb, SsdInterface ssdInterface, SsdFormFactor formFactor, SsdProtocol protocol, short readSpeedMb, short writeSpeedMb) {
-        super(null, name, sku, rating, ratedCount, brand, category, shortDescription, technicalDescription, price, stock);
+    public Ssd(String name, String sku, BigDecimal rating, int ratedCount, String brand, ProductCategory category, String ShortDescription, String technicalDescription, BigDecimal price, Short stock, String model, Short capacityGb, SsdInterface ssdInterface, SsdFormFactor formFactor, SsdProtocol protocol, Short readSpeedMb, Short writeSpeedMb) {
+        super(null, name, sku, rating, ratedCount, brand, category, ShortDescription, technicalDescription, price, stock);
         this.model = model;
         this.capacityGb = capacityGb;
         this.ssdInterface = ssdInterface;

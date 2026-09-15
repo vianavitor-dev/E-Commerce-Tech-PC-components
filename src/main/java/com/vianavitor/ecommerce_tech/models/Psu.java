@@ -16,7 +16,7 @@ public class Psu extends Product {
     private String model;
 
     @Column(name = "wattage_supply")
-    private short wattageSupply;
+    private Short wattageSupply;
 
     @Column(name = "efficiency_rating")
     private PsuEfficiencyRating efficiencyRating = PsuEfficiencyRating.STANDARD;

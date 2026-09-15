@@ -31,13 +31,13 @@ public class Product {
     private ProductCategory category;
 
     @Column(name = "short_description")
-    private String shortDescription;
+    private String ShortDescription;
 
     @Column(name = "technical_description")
     private String technicalDescription;
 
     @Column(precision = 8, scale = 2)
     private BigDecimal price;
-    private short stock;
+    private Short stock;
 }
 

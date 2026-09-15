@@ -15,13 +15,13 @@ public class Gpu extends Product {
     private String chipset;
 
     @Column(name = "vram_gb")
-    private byte vramGb;
+    private Byte vramGb;
 
     @Column(name = "vram_type")
     private String vramType;
 
     @Column(name = "power_consumption")
-    private short powerConsumption;
+    private Short powerConsumption;
 
     @Column(name = "interface")
     private String gpuInterface;

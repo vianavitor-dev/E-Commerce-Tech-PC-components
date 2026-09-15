@@ -14,13 +14,13 @@ public class Ram extends Product {
     private String model;
 
     @Column(name = "capacity_gb")
-    private byte capacityGb;
+    private Byte capacityGb;
 
     @Column(name = "ddr_generation")
     private String ddrGeneration;
 
     @Column(name = "frequency_mhz")
-    private short frequencyMhz;
-    private byte modules;
+    private Short frequencyMhz;
+    private Byte modules;
     private RamFormFactor formFactor = RamFormFactor.DIMM;
 }

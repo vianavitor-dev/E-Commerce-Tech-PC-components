@@ -15,10 +15,10 @@ public class Motherboard extends Product {
     private String chipset;
     private String socket;
     private String ddrGeneration;
-    private byte ramSlots;
-    private short maxRamCapacityGb;
-    private byte sataSlots;
-    private byte m2Slots;
+    private Byte ramSlots;
+    private Short maxRamCapacityGb;
+    private Byte sataSlots;
+    private Byte m2Slots;
 
     // TODO: create a new Entity to implements the motherboards ports
 
