@@ -176,24 +176,48 @@ public class ProductService {
             int ramMemorySum = 0;
             List<CompatibleReportDTO> ramsReport = new ArrayList<>();
 
-            for (Ram ram : data.getRams()) {
-                boolean isCompatible = ram.getDdrGeneration().equals(motherboard.getDdrGeneration());
-                String description = null;
+            boolean isRamOverTheMaxCapacity = false;
+            boolean isRamCountOverMaxRamSlots = ramMemorySum > motherboard.getMaxRamCapacityGb();;
 
-                if (!isCompatible) {
+            for (Ram ram : data.getRams()) {
+                ramMemorySum += ram.getCapacityGb();
+
+                boolean isRamDdrGenCompatible = ram.getDdrGeneration().equals(motherboard.getDdrGeneration());
+                isRamOverTheMaxCapacity = ramMemorySum > motherboard.getMaxRamCapacityGb();
+
+                StringBuilder descriptionBuilder = new StringBuilder();
+
+                if (!isRamDdrGenCompatible) {
                     int ramDdrGenerationNum = Integer.parseInt(ram.getDdrGeneration().substring(3));
                     int motherboardDdrGenerationNum = Integer.parseInt(motherboard.getDdrGeneration().substring(3));
                     boolean isRamDrrGenOlder = ramDdrGenerationNum < motherboardDdrGenerationNum;
 
                     String aux = isRamDrrGenOlder ? "older" : "newer";
-                    description = "This RAM DDR generation is "+aux+" than the required ("+ motherboard.getDdrGeneration()+")";
+                    descriptionBuilder.append(
+                            "* This RAM DDR generation is %s than the required (%s) \n"
+                                    .formatted(aux, motherboard.getDdrGeneration())
+                    );
                 }
 
-                ramsReport.add(new CompatibleReportDTO(isCompatible, ram.getName(), description));
-                ramMemorySum += ram.getCapacityGb();
+                if (isRamOverTheMaxCapacity) {
+                    descriptionBuilder.append(
+                            "* You have exceeded the max RAM capacity available by your motherboard, " +
+                                    "if you mistake please remove this one \n"
+                    );
+                }
+
+                boolean isCurrentRamExceedingMaxRamSlots = (1 + ramsReport.size()) > motherboard.getRamSlots();
+                if (isCurrentRamExceedingMaxRamSlots) {
+                    descriptionBuilder.append(
+                            "* You have selected more RAMs than your motherboard can support, " +
+                                    "if you mistake please remove this one"
+                    );
+                }
+
+                boolean isCompatible = isRamDdrGenCompatible && !(isRamOverTheMaxCapacity);
+                ramsReport.add(new CompatibleReportDTO(isCompatible, ram.getName(), descriptionBuilder.toString()));
             }
 
-            boolean isRamOverTheMaxCapacity = ramMemorySum > motherboard.getMaxRamCapacityGb();
             if (isRamOverTheMaxCapacity) {
                 extraInfoBuilder.append("""
                             *The chosen RAMs capacity are exceeding the max capacity 
@@ -203,7 +227,6 @@ public class ProductService {
                 );
             }
 
-            boolean isRamCountOverMaxRamSlots = data.getRams().size() > motherboard.getRamSlots();
             if (isRamCountOverMaxRamSlots) {
                 extraInfoBuilder.append("""
                             *You have chosen more RAMs than your motherboard can supports. 
