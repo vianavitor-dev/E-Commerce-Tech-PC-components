@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface ProductRepository extends ReadOnlyInterface<Product, Integer> {
     Optional<Product> findBySku(String sku);
 
+    Product save(Product entity);
+
     @Query(value = """
             SELECT
                 p.id, p.name, p.category, p.rating,
