@@ -7,10 +7,13 @@ import com.vianavitor.ecommerce_tech.dtos.response.aux.CompatibleReportDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.aux.PcComponentsReportDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.*;
+import com.vianavitor.ecommerce_tech.models.aux.RatingHistoryId;
 import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.repositories.ProductRepository;
+import com.vianavitor.ecommerce_tech.repositories.RatingHistoryRepository;
+import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,59 @@ import java.util.*;
 public class ProductService {
     @Autowired
     private ProductRepository repository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RatingHistoryRepository ratingHistoryRepository;
+
+    public BigDecimal rateProduct(Integer id, Integer userId, BigDecimal rate) throws NotFoundResourceException {
+        Product product = this.findById(id);
+        boolean userExists = userRepository.existsById(userId);
+
+        if (!userExists) {
+            throw new NotFoundResourceException("Not found user with the provided ID");
+        }
+
+        // saves user rating into the history
+        RatingHistory history = new RatingHistory(userId, id, rate);
+        ratingHistoryRepository.save(history);
+
+        int count = product.getRatedCount();
+        double lastSum = product.getRating().doubleValue() * count;
+        double currentSum = lastSum + rate.doubleValue();
+        double average = currentSum/ (count + 1);
+
+        product.setRating(BigDecimal.valueOf(average));
+        product.setRatedCount(count + 1);
+        product = repository.save(product);
+
+        return product.getRating();
+    }
+
+    public BigDecimal removesRate(Integer productId, Integer userId) throws NotFoundResourceException {
+        RatingHistoryId historyId = new RatingHistoryId(userId, productId);
+
+        RatingHistory history = ratingHistoryRepository.findById(historyId)
+                .orElseThrow(() -> new NotFoundResourceException("This user have never rated this product"));
+
+        // updates the product rating before deleting the history register
+        Product product = this.findById(productId);
+
+        int count = product.getRatedCount();
+        double lastSum = product.getRating().doubleValue() * count;
+        double currentSum = lastSum - history.getRate().doubleValue();
+        double average = currentSum/ (count -1);
+
+        product.setRating(BigDecimal.valueOf(average));
+        product.setRatedCount(count + 1);
+        product = repository.save(product);
+
+        ratingHistoryRepository.delete(history);
+
+        return product.getRating();
+    }
 
     public Product findById(Integer id) throws NotFoundResourceException {
         return repository.findById(id).
