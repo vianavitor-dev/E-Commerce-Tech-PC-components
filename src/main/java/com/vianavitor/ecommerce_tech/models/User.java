@@ -22,6 +22,8 @@ public class User {
 
     @Column(columnDefinition = "varchar(255)", nullable = false)
     private String password; // hashed password
+
+    private Boolean active;
 }
 
 

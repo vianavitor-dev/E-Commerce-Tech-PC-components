@@ -2,6 +2,7 @@ package com.vianavitor.ecommerce_tech.services;
 
 import com.password4j.Password;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
+import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.User;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
@@ -28,7 +29,7 @@ public class UserService {
 
         String hashedPassword = Password.hash(forms.password()).withArgon2().getResult();
 
-        User user = new User(null, forms.name(), forms.email(), forms.password());
+        User user = new User(null, forms.name(), forms.email(), forms.password(), true);
         user.setPassword(hashedPassword);
 
         repository.save(user);
@@ -56,11 +57,15 @@ public class UserService {
         return repository.findAll();
     }
 
-    public User modify(Integer id, String email, String name) throws NotFoundResourceException {
+    public User modify(Integer id, String email, String name) throws NotFoundResourceException, DeactivatedUserException {
         User user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException(
                         "User not found"
                 ));
+
+        if (!user.getActive()) {
+            throw new DeactivatedUserException("User deactivated, cannot be modified");
+        }
 
         name = Optional.ofNullable(name).orElse(user.getName());
         email = Optional.ofNullable(email).orElse(user.getEmail());
@@ -77,20 +82,23 @@ public class UserService {
                         "User not found"
                 ));
 
+        if (!user.getActive()) {
+            throw new DeactivatedUserException("User deactivated, cannot be modified");
+        }
+
         String hashedPassword = Password.hash(password).withArgon2().getResult();
         user.setPassword(hashedPassword);
 
         repository.save(user);
     }
 
-    // TODO: implement deactivate user instead
-//
-//    public void delete(Integer id) throws NotFoundResourceException {
-//        User user = repository.findById(id)
-//                .orElseThrow(() -> new NotFoundResourceException(
-//                        "No user found having this ID <bold>"+id+"<bold>"
-//                ));
-//
-//        repository.delete(user);
-//    }
+    public void changeActiveStatus(Integer id, Boolean status) throws NotFoundResourceException {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new NotFoundResourceException(
+                        "No user found having this ID"
+                ));
+
+        user.setActive(status);
+        repository.save(user);
+    }
 }
