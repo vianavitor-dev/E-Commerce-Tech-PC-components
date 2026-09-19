@@ -1,6 +1,7 @@
 package com.vianavitor.ecommerce_tech.services;
 
 import com.password4j.Password;
+import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.User;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
@@ -18,30 +19,32 @@ public class UserService {
 
     // TODO: implement authentication and authorization rules
 
-    public void createNew(User data) throws NotFoundResourceException {
-        boolean isEmailAlreadyInUse = repository.findByEmail(data.getEmail()).isPresent();
+    public void createNew(UserRegisterFormsDTO forms) throws NotFoundResourceException, DataIntegrityViolationException {
+        boolean isEmailAlreadyInUse = repository.findByEmail(forms.email()).isPresent();
 
         if (isEmailAlreadyInUse) {
             throw new DataIntegrityViolationException("This e-mail is already in use, please enter another one");
         }
 
-        String hashedPassword = Password.hash(data.getPassword()).withArgon2().getResult();
-        data.setPassword(hashedPassword);
+        String hashedPassword = Password.hash(forms.password()).withArgon2().getResult();
 
-        repository.save(data);
+        User user = new User(null, forms.name(), forms.email(), forms.password());
+        user.setPassword(hashedPassword);
+
+        repository.save(user);
     }
 
     public User getById(Integer id) throws NotFoundResourceException {
         return repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException(
-                        "No user found having the ID <bold>"+id+"<bold>"
+                        "User not found"
                 ));
     }
     
     public User findByEmail(String email) throws NotFoundResourceException {
         return repository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundResourceException(
-                        "No user found having the provided e-mail <bold>"+email+"<bold>"
+                        "No user found matching the provided e-mail"
                 ));
     }
 
@@ -56,7 +59,7 @@ public class UserService {
     public User modify(Integer id, String email, String name) throws NotFoundResourceException {
         User user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException(
-                        "No user found having the ID <bold>"+id+"<bold>"
+                        "User not found"
                 ));
 
         name = Optional.ofNullable(name).orElse(user.getName());
@@ -71,7 +74,7 @@ public class UserService {
     public void changePassword(Integer id, String password) throws NotFoundResourceException {
         User user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException(
-                        "No user found having the ID <bold>"+id+"<bold>"
+                        "User not found"
                 ));
 
         String hashedPassword = Password.hash(password).withArgon2().getResult();
