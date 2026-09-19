@@ -14,7 +14,6 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.repositories.ProductRepository;
 import com.vianavitor.ecommerce_tech.repositories.RatingHistoryRepository;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +41,34 @@ public class ProductService {
         }
 
         // saves user rating into the history
-        RatingHistory history = new RatingHistory(userId, id, rate);
+        Optional<RatingHistory> result = ratingHistoryRepository
+                .findById(new RatingHistoryId(userId, id));
+
+        boolean neverRatedThisProductBefore = result.isEmpty();
+        RatingHistory history;
+
+        int firstRate = 0;
+        double userLastRate = 0.0;
+
+        if (neverRatedThisProductBefore) { // only sum the count if it is the fist time this user rate this product
+            history = new RatingHistory(userId, id, rate);
+            firstRate = 1;
+        } else {
+            history = result.get();
+            userLastRate = history.getRate().doubleValue();
+
+            history.setRate(rate);
+        }
+
         ratingHistoryRepository.save(history);
 
         int count = product.getRatedCount();
         double lastSum = product.getRating().doubleValue() * count;
-        double currentSum = lastSum + rate.doubleValue();
-        double average = currentSum/ (count + 1);
+        double currentSum = (lastSum - userLastRate) + rate.doubleValue();
+        double average = currentSum/ (count + firstRate);
 
         product.setRating(BigDecimal.valueOf(average));
-        product.setRatedCount(count + 1);
+        product.setRatedCount(count + firstRate);
         product = repository.save(product);
 
         return product.getRating();
@@ -69,10 +86,10 @@ public class ProductService {
         int count = product.getRatedCount();
         double lastSum = product.getRating().doubleValue() * count;
         double currentSum = lastSum - history.getRate().doubleValue();
-        double average = currentSum/ (count -1);
+        double average = (count > 1) ? currentSum/ (count -1) : 0; // prevents division by 0
 
         product.setRating(BigDecimal.valueOf(average));
-        product.setRatedCount(count + 1);
+        product.setRatedCount(count -1);
         product = repository.save(product);
 
         ratingHistoryRepository.delete(history);
