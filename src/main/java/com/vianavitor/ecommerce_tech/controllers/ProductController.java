@@ -21,14 +21,25 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
-    @GetMapping("/by-name")
-    public ResponseEntity<List<?>> searchByName(@Nullable @RequestParam String name) {
+    @GetMapping
+    public ResponseEntity<List<?>> search(
+            @Nullable @RequestParam String name,
+            @Nullable @RequestParam ProductCategory category
+    ) {
         List<? extends ProductSearchResultsDTO> results = null;
 
-        if (name == null || name.isBlank()) {
-            results = service.findAll();
+        if (name == null) {
+            if (category == null) {
+                results = service.findAll();
+            } else {
+                results = service.findByCategory(category);
+            }
         } else {
-            results = service.findByName(name);
+            if (category == null) {
+                results = service.findByName(name);
+            } else {
+                results = service.findByCategoryAndName(category, name);
+            }
         }
 
         return ResponseEntity.ok(results);
@@ -44,13 +55,13 @@ public class ProductController {
         return ResponseEntity.ok(service.checkPcComponentsCompatibility(request));
     }
 
-    @GetMapping()
+    @GetMapping("/all")
     public ResponseEntity<List<?>> searchAll() {
         List<? extends ProductSearchResultsDTO> results = service.findAll();
 
         return ResponseEntity.ok(results);
     }
-    
+
     @PostMapping("/rate")
     public BigDecimal rate(@RequestBody ProductUserIdsDTO request, @RequestParam BigDecimal value) {
         if (value == null) {
