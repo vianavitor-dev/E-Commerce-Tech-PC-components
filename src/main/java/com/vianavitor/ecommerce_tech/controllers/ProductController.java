@@ -63,11 +63,15 @@ public class ProductController {
     }
 
     @PostMapping("/rate")
-    public BigDecimal rate(@RequestBody ProductUserIdsDTO request, @RequestParam BigDecimal value) {
+    public ResponseEntity<BigDecimal> rate(@RequestBody ProductUserIdsDTO request, @Nullable @RequestParam BigDecimal value) {
+        BigDecimal result;
+
         if (value == null) {
-            return service.removesRate(request.productId(), request.userId());
+            result = service.removesRate(request.productId(), request.userId());
+        } else {
+            result = service.rateProduct(request.productId(), request.userId(), value);
         }
 
-        return service.rateProduct(request.productId(), request.userId(), value);
+        return ResponseEntity.ok(result);
     }
 }
