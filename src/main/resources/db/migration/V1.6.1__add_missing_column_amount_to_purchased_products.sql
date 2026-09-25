@@ -1,0 +1,2 @@
+ALTER TABLE purchased_products
+ADD COLUMN amount TINYINT NOT NULL DEFAULT 1;
