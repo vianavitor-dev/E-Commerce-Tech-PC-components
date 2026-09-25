@@ -13,7 +13,7 @@ public class GlobalExceptionController {
     @ExceptionHandler(NotFoundResourceException.class)
     public ResponseEntity<?> notFoundResourceException(NotFoundResourceException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-    }
+    } 
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> dataIntegrityViolationException(DataIntegrityViolationException e) {
@@ -23,5 +23,10 @@ public class GlobalExceptionController {
     @ExceptionHandler(DeactivatedUserException.class)
     public ResponseEntity<?> deactivatedUserException(DeactivatedUserException e) {
         return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> illegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
