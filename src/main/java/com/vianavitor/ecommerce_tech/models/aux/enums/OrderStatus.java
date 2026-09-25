@@ -1,8 +1,8 @@
 package com.vianavitor.ecommerce_tech.models.aux.enums;
 
 public enum OrderStatus {
-    IN_PROGRESS,
-    IN_TRANSIT,
+    IN_PROCESS,
+    ON_ITS_WAY,
     DELIVERED,
     CANCELED,
     REFUNDED;
@@ -18,8 +18,8 @@ public enum OrderStatus {
         OrderStatus status;
 
         switch(this) {
-            case IN_PROGRESS -> status = IN_TRANSIT;
-            case IN_TRANSIT -> status = DELIVERED;
+            case IN_PROCESS -> status = ON_ITS_WAY;
+            case ON_ITS_WAY -> status = DELIVERED;
             default -> status = this;
         }
 
@@ -34,6 +34,6 @@ public enum OrderStatus {
 
     @Override
     public String toString() {
-        return this.name().toLowerCase().replace("_", "-");
+        return this.name().toLowerCase();
     }
 }

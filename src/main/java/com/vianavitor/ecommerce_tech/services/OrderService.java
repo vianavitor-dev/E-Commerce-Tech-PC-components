@@ -53,7 +53,7 @@ public class OrderService {
         }
 
         LocalDate now = LocalDate.now();
-        Order userOrder = repository.save(new Order(null, user, OrderStatus.IN_PROGRESS, now, now));
+        Order userOrder = repository.save(new Order(null, user, OrderStatus.IN_PROCESS, now, now));
 
         // attach products bought with the order
         List<PurchasedProduct> purchasedProducts = products.stream()
