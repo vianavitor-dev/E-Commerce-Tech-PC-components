@@ -21,4 +21,6 @@ public class PurchasedProduct {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    private Byte amount = 1;
 }

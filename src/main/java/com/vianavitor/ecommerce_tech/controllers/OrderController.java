@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -26,8 +27,8 @@ public class OrderController {
     }
 
     @PostMapping("/for-user/{userId}")
-    public ResponseEntity<?> orderProducts(@PathVariable Integer userId, @RequestBody List<Integer> productsId) {
-        service.orderProducts(userId, productsId);
+    public ResponseEntity<?> orderProducts(@PathVariable Integer userId, @RequestBody Map<Integer, Byte> cart) {
+        service.orderProducts(userId, cart);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

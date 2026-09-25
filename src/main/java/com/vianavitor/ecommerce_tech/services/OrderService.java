@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,24 +40,30 @@ public class OrderService {
         return repository.findByUser(user);
     }
 
-    public void orderProducts(Integer userId, List<Integer> productsId) throws NotFoundResourceException, IllegalArgumentException {
-        User user = userService.getById(userId);
-
-        Set<Product> products = productsId.stream()
-                .map(prodId -> productService.findById(prodId))
-                .collect(Collectors.toSet());
-
-        if (products.isEmpty()) {
+    public void orderProducts(Integer userId, Map<Integer, Byte> cart) throws NotFoundResourceException, IllegalArgumentException {
+        if (cart.isEmpty()) {
             throw new IllegalArgumentException("There are no products to order");
         }
+
+        User user = userService.getById(userId);
 
         LocalDate now = LocalDate.now();
         Order userOrder = repository.save(new Order(null, user, OrderStatus.IN_PROCESS, now, now));
 
         // attach products bought with the order
-        List<PurchasedProduct> purchasedProducts = products.stream()
-                .map(product -> new PurchasedProduct(null, product, userOrder))
-                .toList();
+        List<PurchasedProduct> purchasedProducts = new ArrayList<>();
+
+        for (var entry = cart.entrySet().iterator(); entry.hasNext();) {
+            Map.Entry<Integer, Byte> current = entry.next();
+
+            Integer productId = current.getKey();
+            Byte productAmount = current.getValue();
+
+            Product product = productService.findById(productId);
+            purchasedProducts.add(
+                    new PurchasedProduct(null, product, userOrder, productAmount)
+            );
+        }
 
         purchasedProductRepository.saveAll(purchasedProducts);
     }
