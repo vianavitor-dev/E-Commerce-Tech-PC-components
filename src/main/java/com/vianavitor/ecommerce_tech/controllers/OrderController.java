@@ -1,5 +1,6 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
+import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
 import com.vianavitor.ecommerce_tech.models.Order;
 import com.vianavitor.ecommerce_tech.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class OrderController {
     }
 
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<Order>> getUserOrders(@PathVariable Integer userId) {
+    public ResponseEntity<List<UsersOrderDTO>> getUserOrders(@PathVariable Integer userId) {
         return ResponseEntity.ok(service.findByUser(userId));
     }
 

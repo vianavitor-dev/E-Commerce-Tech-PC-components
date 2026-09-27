@@ -1,5 +1,6 @@
 package com.vianavitor.ecommerce_tech.services;
 
+import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.Order;
 import com.vianavitor.ecommerce_tech.models.Product;
@@ -34,10 +35,15 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundResourceException("This order does not exists"));
     }
 
-    public List<Order> findByUser(Integer userId) throws NotFoundResourceException {
+    public List<UsersOrderDTO> findByUser(Integer userId) throws NotFoundResourceException {
         User user = userService.getById(userId);
 
-        return repository.findByUser(user);
+        return repository.findByUser(user)
+                .stream()
+                .map(order -> new UsersOrderDTO(
+                        order.getId(), order.getStatus(), order.getOrderedAt(), order.getStatusUpdatedAt()
+                ))
+                .toList();
     }
 
     public void orderProducts(Integer userId, Map<Integer, Byte> cart) throws NotFoundResourceException, IllegalArgumentException {
