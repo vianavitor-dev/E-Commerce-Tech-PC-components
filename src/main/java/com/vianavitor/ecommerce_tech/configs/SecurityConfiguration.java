@@ -1,6 +1,7 @@
 package com.vianavitor.ecommerce_tech.configs;
 
 import com.vianavitor.ecommerce_tech.configs.auth.UserAuthenticatorFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +37,7 @@ public class SecurityConfiguration {
             "/api/users/{id}/activate"  // activate account
     };
 
+    @Autowired
     UserAuthenticatorFilter userAuthenticatorFilter;
 
     @Bean
@@ -47,7 +50,7 @@ public class SecurityConfiguration {
                         .requestMatchers(REQUIRED_CUSTOMER_AUTHENTICATION_ENDPOINTS).hasRole("CUSTOMER")
                         .requestMatchers(REQUIRED_ADMINISTRATOR_AUTHENTICATION_ENDPOINTS).hasRole("ADMINISTRATOR")
                         .anyRequest().denyAll()
-                ).addFilterBefore(userAuthenticatorFilter, UserAuthenticatorFilter.class)
+                ).addFilterBefore(userAuthenticatorFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
