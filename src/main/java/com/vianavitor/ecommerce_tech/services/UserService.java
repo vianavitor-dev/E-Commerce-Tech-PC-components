@@ -4,7 +4,9 @@ import com.password4j.Password;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
 import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.models.Role;
 import com.vianavitor.ecommerce_tech.models.User;
+import com.vianavitor.ecommerce_tech.models.aux.enums.UserRole;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,9 +30,9 @@ public class UserService {
         }
 
         String hashedPassword = Password.hash(forms.password()).withArgon2().getResult();
+        List<Role> roles = List.of(new Role(null, UserRole.ROLE_CUSTOMER));
 
-        User user = new User(null, forms.name(), forms.email(), forms.password(), true);
-        user.setPassword(hashedPassword);
+        User user = new User(null, forms.name(), forms.email(), hashedPassword, roles,true);
 
         repository.save(user);
     }
