@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name ENUM('ROLE_CUSTOMER', 'ROLE_ADMINISTRATOR') NOT NULL DEFAULT 'ROLE_CUSTOMER'
+);
+
+CREATE TABLE IF NOT EXISTS user_roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    role_id INT NOT NULL
+);
+
+ALTER TABLE user_roles
+ADD CONSTRAINT fk_user_roles__user
+    FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE user_roles
+ADD CONSTRAINT fk_user_roles__role
+    FOREIGN KEY (role_id) REFERENCES roles(id);
+

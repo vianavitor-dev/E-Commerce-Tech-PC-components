@@ -3,6 +3,8 @@ package com.vianavitor.ecommerce_tech.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,6 +24,12 @@ public class User {
 
     @Column(columnDefinition = "varchar(255)", nullable = false)
     private String password; // hashed password
+
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 
     private Boolean active;
 }
