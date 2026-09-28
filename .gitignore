@@ -7,6 +7,8 @@ target/
 # Custom
 .env
 application-test.properties
+.postman
+postman
 
 ### STS ###
 .apt_generated
