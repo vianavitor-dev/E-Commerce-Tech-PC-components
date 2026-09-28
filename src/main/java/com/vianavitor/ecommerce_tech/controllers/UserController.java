@@ -1,5 +1,6 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
+import com.vianavitor.ecommerce_tech.dtos.request.UserLoginFormsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserModifiableFieldsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
 import com.vianavitor.ecommerce_tech.models.User;
@@ -16,6 +17,13 @@ import java.net.URI;
 public class UserController {
     @Autowired
     private UserService service;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginFormsDTO forms) {
+        var token = service.authenticate(forms);
+
+        return ResponseEntity.ok(token);
+    }
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody UserRegisterFormsDTO forms) {
