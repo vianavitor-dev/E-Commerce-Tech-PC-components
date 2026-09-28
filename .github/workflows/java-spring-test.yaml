@@ -11,6 +11,7 @@ jobs:
         with:
           java-version: 25
           distribution: temurin
+          cache: 'maven'
 
       - name: "run tests"
         run: mvn clean test -Dtest=*Test -Dspring.profiles.active=test # runs only the test classes and uses the 'test' profile active
