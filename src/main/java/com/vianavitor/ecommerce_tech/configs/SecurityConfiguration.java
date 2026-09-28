@@ -27,7 +27,7 @@ public class SecurityConfiguration {
             "/api/products/rate",                   // rate the product
             "/api/products/compatibility-check",    // check the selected PC components
             "/api/orders",                          // get by ID, get by user, order products, refund, change status
-            "api/purchased-products",               // get by order
+            "/api/purchased-products",               // get by order
             "/api/users/{id}"                       // get by ID, modify, deactivate
     };
 
