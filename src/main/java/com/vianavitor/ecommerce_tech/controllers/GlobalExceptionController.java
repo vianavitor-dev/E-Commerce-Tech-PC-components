@@ -1,10 +1,11 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
-import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
-import com.vianavitor.ecommerce_tech.exceptions.DuplicateUserException;
-import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,8 +26,13 @@ public class GlobalExceptionController {
         return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> illegalArgumentException(IllegalArgumentException e) {
+    @ExceptionHandler(OrderNotCanceledException.class)
+    public ResponseEntity<?> orderNoCanceledException(OrderNotCanceledException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidEmailOrPasswordException.class)
+    public ResponseEntity<?> invalidEmailOrPasswordException(InvalidEmailOrPasswordException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

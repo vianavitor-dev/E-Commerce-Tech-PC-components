@@ -4,6 +4,7 @@ import com.vianavitor.ecommerce_tech.dtos.request.UserLoginFormsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
 import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
 import com.vianavitor.ecommerce_tech.exceptions.DuplicateUserException;
+import com.vianavitor.ecommerce_tech.exceptions.InvalidEmailOrPasswordException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.Role;
 import com.vianavitor.ecommerce_tech.models.User;
@@ -12,9 +13,9 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.UserRole;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import com.vianavitor.ecommerce_tech.services.auth.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,21 +35,26 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String authenticate(UserLoginFormsDTO forms) throws NotFoundResourceException {
-        User user = repository.findByEmail(forms.email())
-                .orElseThrow(() -> new NotFoundResourceException("Invalid e-mail or password password"));
+    public String authenticate(UserLoginFormsDTO forms) throws InvalidEmailOrPasswordException {
+        try {
+            var _ = repository.findByEmail(forms.email())
+                    .orElseThrow(() -> new NotFoundResourceException("Not found user with the provided e-mail"));
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(forms.email(), forms.password());
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(forms.email(), forms.password());
 
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        if (userDetails == null) {
-            throw new NullPointerException("Error when trying to retrieve userDetails");
+            if (userDetails == null) {
+                throw new NullPointerException("Error when trying to retrieve userDetails");
+            }
+
+            return jwtTokenService.generateToken(userDetails);
+
+        } catch (NotFoundResourceException | UsernameNotFoundException | BadCredentialsException | DisabledException e) {
+            throw new InvalidEmailOrPasswordException("Invalid e-mail or password", e);
         }
-
-        return jwtTokenService.generateToken(userDetails);
     }
 
     public void createNew(UserRegisterFormsDTO forms) throws NotFoundResourceException, DuplicateUserException {

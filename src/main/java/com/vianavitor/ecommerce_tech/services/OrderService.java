@@ -2,6 +2,7 @@ package com.vianavitor.ecommerce_tech.services;
 
 import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.exceptions.OrderNotCanceledException;
 import com.vianavitor.ecommerce_tech.models.Order;
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.PurchasedProduct;
@@ -81,12 +82,12 @@ public class OrderService {
         order.setStatusUpdatedAt(now);
     }
 
-    public void refund(Integer id) throws NotFoundResourceException, IllegalArgumentException {
+    public void refund(Integer id) throws NotFoundResourceException, OrderNotCanceledException {
         Order order = this.findById(id);
         this.updateStatusAndDate(order, order.getStatus().refund());
 
         if (order.getStatus() == null) {
-            throw new IllegalArgumentException("You must cancel the order before requesting refund!");
+            throw new OrderNotCanceledException("You must cancel the order before requesting refund!");
         }
 
         repository.save(order);
