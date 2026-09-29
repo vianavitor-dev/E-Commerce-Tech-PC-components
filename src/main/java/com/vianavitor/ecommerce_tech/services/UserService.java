@@ -1,10 +1,9 @@
 package com.vianavitor.ecommerce_tech.services;
 
-import com.password4j.Password;
-import com.vianavitor.ecommerce_tech.configs.SecurityConfiguration;
 import com.vianavitor.ecommerce_tech.dtos.request.UserLoginFormsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
 import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
+import com.vianavitor.ecommerce_tech.exceptions.DuplicateUserException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.Role;
 import com.vianavitor.ecommerce_tech.models.User;
@@ -13,11 +12,9 @@ import com.vianavitor.ecommerce_tech.models.aux.enums.UserRole;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import com.vianavitor.ecommerce_tech.services.auth.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +30,6 @@ public class UserService {
 
     @Autowired
     private JwtTokenService jwtTokenService;
-
-    @Autowired
-    private SecurityConfiguration securityConfiguration;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -57,11 +51,11 @@ public class UserService {
         return jwtTokenService.generateToken(userDetails);
     }
 
-    public void createNew(UserRegisterFormsDTO forms) throws NotFoundResourceException, DataIntegrityViolationException {
+    public void createNew(UserRegisterFormsDTO forms) throws NotFoundResourceException, DuplicateUserException {
         boolean isEmailAlreadyInUse = repository.findByEmail(forms.email()).isPresent();
 
         if (isEmailAlreadyInUse) {
-            throw new DataIntegrityViolationException("This e-mail is already in use, please enter another one");
+            throw new DuplicateUserException("This e-mail is already in use, please enter another one");
         }
 
         String hashedPassword = passwordEncoder.encode(forms.password());

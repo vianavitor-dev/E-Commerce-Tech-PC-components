@@ -1,8 +1,8 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
 import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
+import com.vianavitor.ecommerce_tech.exceptions.DuplicateUserException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,8 +15,8 @@ public class GlobalExceptionController {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     } 
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> dataIntegrityViolationException(DataIntegrityViolationException e) {
+    @ExceptionHandler(DuplicateUserException.class)
+    public ResponseEntity<?> duplicateUserException(DuplicateUserException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
