@@ -5,10 +5,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.vianavitor.ecommerce_tech.models.aux.UserDetailsImpl;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class JwtTokenService {
@@ -19,12 +21,17 @@ public class JwtTokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 
+            List<String> roles = user.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
             return JWT.create()
                     .withIssuer(ISSUER)
                     .withIssuedAt(Instant.now())
                     .withExpiresAt(Instant.now().plus(6, ChronoUnit.HOURS)) // TODO: implement refresh token strategy
                     .withSubject(user.getUsername())
-                    .withClaim("roles", user.getAuthorities().stream().toList())
+                    .withClaim("roles", roles)
                     .sign(algorithm);
 
         } catch (JWTCreationException e) {
@@ -40,7 +47,7 @@ public class JwtTokenService {
                     .withIssuer(ISSUER)
                     .build()
                     .verify(token)
-                    .getSignature();
+                    .getSubject();
 
         } catch (JWTVerificationException e) {
             throw new JWTVerificationException("Invalid or expired token.", e);

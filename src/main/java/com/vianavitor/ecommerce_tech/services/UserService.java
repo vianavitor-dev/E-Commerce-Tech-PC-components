@@ -18,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,12 +37,15 @@ public class UserService {
     @Autowired
     private SecurityConfiguration securityConfiguration;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public String authenticate(UserLoginFormsDTO forms) throws NotFoundResourceException {
         User user = repository.findByEmail(forms.email())
                 .orElseThrow(() -> new NotFoundResourceException("Invalid e-mail or password password"));
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+                new UsernamePasswordAuthenticationToken(forms.email(), forms.password());
 
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -60,7 +64,7 @@ public class UserService {
             throw new DataIntegrityViolationException("This e-mail is already in use, please enter another one");
         }
 
-        String hashedPassword = Password.hash(forms.password()).withArgon2().getResult();
+        String hashedPassword = passwordEncoder.encode(forms.password());
         List<Role> roles = List.of(new Role(null, UserRole.ROLE_CUSTOMER));
 
         User user = new User(null, forms.name(), forms.email(), hashedPassword, roles,true);
@@ -119,7 +123,7 @@ public class UserService {
             throw new DeactivatedUserException("User deactivated, cannot be modified");
         }
 
-        String hashedPassword = Password.hash(password).withArgon2().getResult();
+        String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);
 
         repository.save(user);
