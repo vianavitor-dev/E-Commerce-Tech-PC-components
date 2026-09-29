@@ -6,7 +6,7 @@ target/
 
 # Custom
 .env
-application-test.properties
+#application-test.properties
 .postman
 postman
 
