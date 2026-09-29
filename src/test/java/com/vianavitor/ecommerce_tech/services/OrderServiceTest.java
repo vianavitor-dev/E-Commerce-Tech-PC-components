@@ -2,6 +2,7 @@ package com.vianavitor.ecommerce_tech.services;
 
 import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.exceptions.OrderNotCanceledException;
 import com.vianavitor.ecommerce_tech.models.Order;
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.User;
@@ -129,12 +130,12 @@ class OrderServiceTest {
     }
 
     @Test
-    void refund_ShouldThrowIllegalArgumentException_WhenStatusAfterRefundIsNull() {
+    void refund_ShouldThrowOrderNotCanceledException_WhenStatusAfterRefundIsNull() {
         sampleOrder.setStatus(orderStatusMock);
         when(repository.findById(1)).thenReturn(Optional.of(sampleOrder));
         when(orderStatusMock.refund()).thenReturn(null);
 
-        assertThrows(IllegalArgumentException.class, () -> orderService.refund(1));
+        assertThrows(OrderNotCanceledException.class, () -> orderService.refund(1));
         verify(repository, never()).save(sampleOrder);
     }
 
