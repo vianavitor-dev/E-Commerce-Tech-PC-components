@@ -1,7 +1,7 @@
 package com.vianavitor.ecommerce_tech.services.auth;
 
 import com.vianavitor.ecommerce_tech.models.User;
-import com.vianavitor.ecommerce_tech.models.aux.UserDetailsImpl;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -4,7 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.vianavitor.ecommerce_tech.models.aux.UserDetailsImpl;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ public class JwtTokenService {
                     .withExpiresAt(Instant.now().plus(6, ChronoUnit.HOURS)) // TODO: implement refresh token strategy
                     .withSubject(user.getUsername())
                     .withClaim("roles", roles)
+                    .withClaim("userId", user.getUserId())
                     .sign(algorithm);
 
         } catch (JWTCreationException e) {
@@ -39,18 +41,18 @@ public class JwtTokenService {
         }
     }
 
-    public String getSubjectFromToken(String token) {
+    public DecodedJWT decodeToken(String token) throws JWTVerificationException {
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 
             return JWT.require(algorithm)
                     .withIssuer(ISSUER)
                     .build()
-                    .verify(token)
-                    .getSubject();
+                    .verify(token);
 
         } catch (JWTVerificationException e) {
             throw new JWTVerificationException("Invalid or expired token.", e);
         }
+
     }
 }

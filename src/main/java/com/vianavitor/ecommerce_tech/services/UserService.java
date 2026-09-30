@@ -8,7 +8,7 @@ import com.vianavitor.ecommerce_tech.exceptions.InvalidEmailOrPasswordException;
 import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.models.Role;
 import com.vianavitor.ecommerce_tech.models.User;
-import com.vianavitor.ecommerce_tech.models.aux.UserDetailsImpl;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import com.vianavitor.ecommerce_tech.models.aux.enums.UserRole;
 import com.vianavitor.ecommerce_tech.repositories.UserRepository;
 import com.vianavitor.ecommerce_tech.services.auth.JwtTokenService;
@@ -37,9 +37,6 @@ public class UserService {
 
     public String authenticate(UserLoginFormsDTO forms) throws InvalidEmailOrPasswordException {
         try {
-            var _ = repository.findByEmail(forms.email())
-                    .orElseThrow(() -> new NotFoundResourceException("Not found user with the provided e-mail"));
-
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(forms.email(), forms.password());
 
@@ -52,7 +49,7 @@ public class UserService {
 
             return jwtTokenService.generateToken(userDetails);
 
-        } catch (NotFoundResourceException | UsernameNotFoundException | BadCredentialsException | DisabledException e) {
+        } catch (UsernameNotFoundException | BadCredentialsException | DisabledException e) {
             throw new InvalidEmailOrPasswordException("Invalid e-mail or password", e);
         }
     }

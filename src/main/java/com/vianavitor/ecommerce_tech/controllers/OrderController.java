@@ -2,10 +2,12 @@ package com.vianavitor.ecommerce_tech.controllers;
 
 import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
 import com.vianavitor.ecommerce_tech.models.Order;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import com.vianavitor.ecommerce_tech.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +24,14 @@ public class OrderController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<UsersOrderDTO>> getUserOrders(@PathVariable Integer userId) {
-        return ResponseEntity.ok(service.findByUser(userId));
+    @GetMapping("/by-user")
+    public ResponseEntity<List<UsersOrderDTO>> getUserOrders(@AuthenticationPrincipal UserDetailsImpl principal) {
+        return ResponseEntity.ok(service.findByUser(principal.getUserId()));
     }
 
-    @PostMapping("/for-user/{userId}")
-    public ResponseEntity<?> orderProducts(@PathVariable Integer userId, @RequestBody Map<Integer, Byte> cart) {
-        service.orderProducts(userId, cart);
+    @PostMapping("/for-user")
+    public ResponseEntity<?> orderProducts(@AuthenticationPrincipal UserDetailsImpl principal, @RequestBody Map<Integer, Byte> cart) {
+        service.orderProducts(principal.getUserId(), cart);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

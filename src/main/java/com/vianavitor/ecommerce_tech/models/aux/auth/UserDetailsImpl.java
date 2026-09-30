@@ -1,4 +1,4 @@
-package com.vianavitor.ecommerce_tech.models.aux;
+package com.vianavitor.ecommerce_tech.models.aux.auth;
 
 import com.vianavitor.ecommerce_tech.models.User;
 import lombok.Getter;
@@ -8,32 +8,46 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
 public class UserDetailsImpl implements UserDetails {
-    private User user;
-
+    @Getter
+    private Integer userId;
+    private String username;
+    private String password;
+    private List<? extends GrantedAuthority> roles;
+//
     public UserDetailsImpl(User user) {
-        this.user = user;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles()
+        this.userId = user.getId();
+        this.username = user.getEmail();
+        this.password = user.getPassword();
+        this.roles = user.getRoles()
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());;
+    }
+
+    public UserDetailsImpl(Integer userId, String username, String password, List<? extends GrantedAuthority> roles) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
+
+//    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
     }
 
     @Override
     public @Nullable String getPassword() {
-        return user.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return this.username;
     }
 
     @Override

@@ -31,9 +31,10 @@ public class SecurityConfiguration {
     public final static String[] REQUIRED_CUSTOMER_AUTHENTICATION_ENDPOINTS = {
             "/api/products/rate",                   // rate the product
             "/api/products/compatibility-check",    // check the selected PC components
-            "/api/orders",                          // get by ID, get by user, order products, refund, change status
-            "/api/purchased-products",               // get by order
-            "/api/users/{id}"                       // get by ID, modify, deactivate
+            "/api/orders/**",                          // get by ID, get by user, order products, refund, change status
+            "/api/purchased-products",              // get by order
+            "/api/users/profile",                   // get by ID, modify
+            "/api/users/deactivate"                 // deactivate
     };
 
     public final static String[] REQUIRED_ADMINISTRATOR_AUTHENTICATION_ENDPOINTS = {

@@ -1,15 +1,17 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
 import com.vianavitor.ecommerce_tech.dtos.request.PcComponentsDTO;
-import com.vianavitor.ecommerce_tech.dtos.request.ProductUserIdsDTO;
+import com.vianavitor.ecommerce_tech.dtos.request.ProductIdDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.PcCompatibilityCheckResultDTO;
 import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
 import com.vianavitor.ecommerce_tech.models.Product;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.services.ProductService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -63,13 +65,17 @@ public class ProductController {
     }
 
     @PostMapping("/rate")
-    public ResponseEntity<BigDecimal> rate(@RequestBody ProductUserIdsDTO request, @Nullable @RequestParam BigDecimal value) {
+    public ResponseEntity<BigDecimal> rate(
+            @AuthenticationPrincipal UserDetailsImpl principal,
+            @RequestBody ProductIdDTO request,
+            @Nullable @RequestParam BigDecimal value) {
+
         BigDecimal result;
 
         if (value == null) {
-            result = service.removesRate(request.productId(), request.userId());
+            result = service.removesRate(request.productId(), principal.getUserId());
         } else {
-            result = service.rateProduct(request.productId(), request.userId(), value);
+            result = service.rateProduct(request.productId(), principal.getUserId(), value);
         }
 
         return ResponseEntity.ok(result);

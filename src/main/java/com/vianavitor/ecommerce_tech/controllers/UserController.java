@@ -3,11 +3,12 @@ package com.vianavitor.ecommerce_tech.controllers;
 import com.vianavitor.ecommerce_tech.dtos.request.UserLoginFormsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserModifiableFieldsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
-import com.vianavitor.ecommerce_tech.models.User;
+import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
 import com.vianavitor.ecommerce_tech.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -32,16 +33,16 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
-        var result = service.getById(id);
+    @GetMapping("/profile")
+    public ResponseEntity<?> getById(@AuthenticationPrincipal UserDetailsImpl principal) {
+        var result = service.getById(principal.getUserId());
 
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> modify(@PathVariable Integer id, @RequestBody UserModifiableFieldsDTO data) {
-        var result = service.modify(id, data.email(), data.name());
+    @PutMapping("/profile")
+    public ResponseEntity<?> modify(@AuthenticationPrincipal UserDetailsImpl principal, @RequestBody UserModifiableFieldsDTO data) {
+        var result = service.modify(principal.getUserId(), data.email(), data.name());
 
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
@@ -53,18 +54,19 @@ public class UserController {
         return ResponseEntity.created(URI.create("http://localhost:8081/login")).build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deactivate(@PathVariable Integer id) {
+    private ResponseEntity<?> callChangeActiveStatus__AndReturnResponse(Integer id, boolean status) {
         service.changeActiveStatus(id, false);
-
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deactivate")
+    public ResponseEntity<?> deactivate(@AuthenticationPrincipal UserDetailsImpl principal) {
+        return callChangeActiveStatus__AndReturnResponse(principal.getUserId(), false);
     }
 
     @PutMapping("/{id}/activate")
     public ResponseEntity<?> activate(@PathVariable Integer id) {
-        service.changeActiveStatus(id, true);
-
-        return ResponseEntity.ok().build();
+        return callChangeActiveStatus__AndReturnResponse(id, true);
     }
 
 }
