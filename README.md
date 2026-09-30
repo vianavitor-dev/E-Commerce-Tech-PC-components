@@ -16,14 +16,11 @@
 The project is being developed with **Java and Spring Boot**, with a focus on backend engineering concepts such as:
 
 - REST API development
-- Object-oriented programming
 - Relational database modeling
 - JPA/Hibernate
 - Business rules
 - Product and inventory management
 - Component compatibility validation
-- Exception handling
-- DTOs
 - Layered architecture
 
 The main goal is to simulate a backend system similar to one that could be used in a real-world e-commerce application.
@@ -32,17 +29,20 @@ The main goal is to simulate a backend system similar to one that could be used 
 
 ## 🎯 Project Goals
 
-| Goal | Description |
-|---|---|
-| 🛒 E-Commerce | Build a complete backend for a technology-focused online store |
-| 🧩 Compatibility | Validate whether PC components can work together |
-| 🗄️ Database | Model products and hardware specifications using a relational database |
-| 🔐 Security | Add authentication and authorization |
-| 📦 Inventory | Manage product stock and SKUs |
-| 📋 Orders | Handle carts, orders and order status |
-| 🧪 Testing | Add unit and integration tests |
-| 🐳 DevOps | Containerize and automate the application |
+- ✅️ **Implemented**
+- ☑️ **Implemented partially**
+- ❌️ **Not implemented**
 
+| Done | Goal | Description |
+|---| --- |---|
+| ✅️ | E-Commerce | Build a complete backend for a technology-focused online store |
+| ✅️ | Compatibility | Validate whether PC components can work together |
+| ✅️ | Database | Model products and hardware specifications using a relational database |
+| ✅️ | Security | Add authentication and authorization |
+| ❌️ | Inventory | Manage product stock and SKUs |
+| ☑️ | Orders | Handle carts, orders and order status |
+| ✅️ | Testing | Add unit and integration tests |
+| ❌️ | DevOps | Containerize and automate the application |
 ---
 
 ## 🛠️ Tech Stack
@@ -51,22 +51,44 @@ The main goal is to simulate a backend system similar to one that could be used 
 
 | Technology | Purpose |
 |---|---|
-| ☕ Java | Main programming language |
-| 🌱 Spring Boot | Application framework |
-| 📦 Maven | Dependency management |
+| Java | Main programming language |
+| Spring Boot | Application framework |
+| Maven | Dependency management |
 
 
 ### Database
 
 | Technology | Purpose |
 |---|---|
-| 🐬 MySQL | Relational database |
+| MySQL | Relational database |
+
+---
+
+## How to run it
+
+###  Prerequisites
+- Java 25
+- MySQL 8.0
+
+### 1. Clone this repository
+```bash
+git clone https://github.com/vianavitor-dev/E-Commerce-Tech-PC-components.git
+cd ecommerce-tech
+```
 
 
-### Tools
+### 2. Set up MySQL connection
+modify the `application-dev.properties` to match the required connection settings of your database (JDBC URL, user and password)
+```java
+spring.datasource.url= // your JDBC URL connection, template: jdbc:<datatabase>://<host>:<port>/<database-name>
+spring.datasource.username= // your database username (commonly: root)
+spring.datasource.password= // your database user's password
+```
+you can use the [application-dev.properties](src/main/resources/application-dev.properties) of this repository as example if necessary
 
-| Tool | Purpose |
-|---|---|
-| 🌿 Git | Version control |
-| 🐙 GitHub | Source code hosting |
-| 📬 Postman | API testing |
+
+## 3. Run application
+```bash
+./mvnw spring-boot::run -Dspring-boot.run.profiles=dev
+```
+
