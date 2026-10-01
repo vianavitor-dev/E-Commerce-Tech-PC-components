@@ -30,13 +30,13 @@ The main goal is to simulate a backend system similar to one that could be used 
 
 ## 🎯 Project Goals
 
-- ✅️ **Implemented**
-- ☑️ **Implemented partially**
-- ❌️ **Not implemented**
+- ✅️ **Added**
+- ☑️ **Added partially**
+- ❌️ **Not added yet**
 
 | Done | Goal | Description |
 |---| --- |---|
-| ✅️ | E-Commerce | Build a complete backend for a technology-focused online store |
+| ☑️ | E-Commerce | Build a complete backend for a technology-focused online store |
 | ✅️ | Compatibility | Validate whether PC components can work together |
 | ✅️ | Database | Model products and hardware specifications using a relational database |
 | ✅️ | Security | Add authentication and authorization |
