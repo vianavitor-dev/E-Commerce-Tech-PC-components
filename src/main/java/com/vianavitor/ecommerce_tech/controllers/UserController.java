@@ -34,8 +34,8 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getById(@AuthenticationPrincipal UserDetailsImpl principal) {
-        var result = service.getById(principal.getUserId());
+    public ResponseEntity<?> profile(@AuthenticationPrincipal UserDetailsImpl principal) {
+        var result = service.getProfile(principal.getUserId());
 
         return ResponseEntity.ok(result);
     }

@@ -2,6 +2,7 @@ package com.vianavitor.ecommerce_tech.services;
 
 import com.vianavitor.ecommerce_tech.dtos.request.UserLoginFormsDTO;
 import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
+import com.vianavitor.ecommerce_tech.dtos.response.UserProfileDTO;
 import com.vianavitor.ecommerce_tech.exceptions.DeactivatedUserException;
 import com.vianavitor.ecommerce_tech.exceptions.DuplicateUserException;
 import com.vianavitor.ecommerce_tech.exceptions.InvalidEmailOrPasswordException;
@@ -75,6 +76,12 @@ public class UserService {
                         "User not found"
                 ));
     }
+
+    public UserProfileDTO getProfile(Integer id) throws NotFoundResourceException {
+        User user = this.getById(id);
+
+        return new UserProfileDTO(user.getName(), user.getEmail());
+    }
     
     public User findByEmail(String email) throws NotFoundResourceException {
         return repository.findByEmail(email)
@@ -91,7 +98,7 @@ public class UserService {
         return repository.findAll();
     }
 
-    public User modify(Integer id, String email, String name) throws NotFoundResourceException, DeactivatedUserException {
+    public UserProfileDTO modify(Integer id, String email, String name) throws NotFoundResourceException, DeactivatedUserException {
         User user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException(
                         "User not found"
@@ -107,7 +114,9 @@ public class UserService {
         user.setName(name);
         user.setEmail(email);
 
-        return repository.save(user);
+        repository.save(user);
+
+        return new UserProfileDTO(name, email);
     }
 
     public void changePassword(Integer id, String password) throws NotFoundResourceException {
