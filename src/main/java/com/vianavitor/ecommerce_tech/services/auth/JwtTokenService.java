@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.vianavitor.ecommerce_tech.models.aux.auth.UserDetailsImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,8 @@ import java.util.List;
 
 @Service
 public class JwtTokenService {
-    private static final String SECRET_KEY = "667a914cbcab7fae82bcec870c04d09e";
+    @Value("${token.secret}")
+    private String SECRET_KEY;
     private static final String ISSUER = "vianavitor-app";
 
     public String generateToken(UserDetailsImpl user) {

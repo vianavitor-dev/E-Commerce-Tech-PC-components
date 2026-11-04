@@ -1,6 +1,7 @@
 package com.vianavitor.ecommerce_tech.repositories;
 
 
+import com.vianavitor.ecommerce_tech.aux.TestcontainerClass;
 import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
 import com.vianavitor.ecommerce_tech.models.Product;
 import com.vianavitor.ecommerce_tech.models.Ssd;
@@ -12,35 +13,20 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-@ActiveProfiles("test")
 @SpringBootTest
-@Testcontainers
-public class ProductRepositoryTest {
+public class ProductRepositoryTest extends TestcontainerClass {
     @Autowired
     private ProductRepository repository;
 
     @Autowired
     public TransactionTemplate transactionTemplate;
-
-    @Container
-    @ServiceConnection
-    static MySQLContainer<?> mysql = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
-            .withUsername("root")
-            .withPassword("*123*")
-            .withDatabaseName("ecommerce_tech");
 
     @Autowired
     private EntityManager entityManager;
