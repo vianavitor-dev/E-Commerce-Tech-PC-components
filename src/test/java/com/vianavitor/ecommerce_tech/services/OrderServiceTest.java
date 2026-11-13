@@ -6,11 +6,11 @@ import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.CartDTO;
 import com.vianavitor.ecommerce_tech.ecommerce.services.OrderService;
 
 import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.UsersOrderDTO;
-import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.ecommerce.services.CartService;
 import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.ecommerce.exceptions.OrderNotCanceledException;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Order;
-import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.PurchasedProduct;
 import com.vianavitor.ecommerce_tech.auth.entities.User;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.OrderStatus;
 import com.vianavitor.ecommerce_tech.ecommerce.repositories.OrderRepository;
@@ -30,7 +30,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +39,7 @@ class OrderServiceTest {
     private OrderRepository repository;
 
     @Mock
-    private ProductService productService;
+    private CartService cartService;
 
     @Mock
     private UserService userService;
@@ -56,7 +55,6 @@ class OrderServiceTest {
 
     private User sampleUser;
     private Order sampleOrder;
-    private Product sampleProduct;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +62,6 @@ class OrderServiceTest {
         sampleOrder = new Order();
         sampleOrder.setStatus(OrderStatus.IN_PROCESS);
 
-        sampleProduct = new Product();
     }
 
     // --- findByUser ---
@@ -90,14 +87,14 @@ class OrderServiceTest {
 
     // --- orderProducts ---
 
-// --- orderProducts ---
-
     @Test
     void orderProducts_ShouldCreateOrderAndPurchasedProducts_WhenValidInput() throws NotFoundResourceException {
         // Given
         CartDTO cart = new CartDTO(Map.of(10, (byte) 2), LocalDateTime.now());
+        List<PurchasedProduct> purchasedProducts = List.of(new PurchasedProduct());
+        when(cartService.isEmpty()).thenReturn(false);
+        when(cartService.toPurchasedProducts(sampleOrder)).thenReturn(purchasedProducts);
         when(userService.getById(1)).thenReturn(sampleUser);
-        when(productService.findById(10)).thenReturn(sampleProduct);
         when(repository.save(any(Order.class))).thenReturn(sampleOrder);
 
         // When
@@ -105,19 +102,23 @@ class OrderServiceTest {
 
         // Then
         verify(userService, times(1)).getById(1);
-        verify(productService, times(1)).findById(10);
+        verify(cartService).from(cart);
+        verify(cartService).toPurchasedProducts(sampleOrder);
         verify(repository, times(1)).save(any(Order.class));
-        verify(purchasedProductRepository, times(1)).saveAll(anyList());
+        verify(purchasedProductRepository).saveAll(purchasedProducts);
     }
 
     @Test
     void orderProducts_ShouldThrowIllegalArgumentException_WhenCartIsEmpty() {
         // Given
         CartDTO emptyCart = new CartDTO(Collections.emptyMap(), LocalDateTime.now());
+        when(cartService.isEmpty()).thenReturn(true);
 
         // When / Then
         assertThrows(IllegalArgumentException.class, () -> orderService.orderProducts(1, emptyCart));
 
+        verify(cartService).from(emptyCart);
+        verify(cartService, never()).toPurchasedProducts(any());
         verify(userService, never()).getById(any());
         verify(repository, never()).save(any());
         verify(purchasedProductRepository, never()).saveAll(any());

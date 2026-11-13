@@ -51,7 +51,7 @@ public class OrderService {
     public void orderProducts(Integer userId, CartDTO dto) throws NotFoundResourceException, IllegalArgumentException {
         cartService.from(dto);
 
-        if (cartService.hasProducts()) {
+        if (cartService.isEmpty()) {
             throw new IllegalArgumentException("There are no products to order");
         }
 

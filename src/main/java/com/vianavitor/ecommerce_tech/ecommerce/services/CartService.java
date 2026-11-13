@@ -8,9 +8,11 @@ import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
 import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -19,14 +21,16 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Service
+@RequestScope
+@Validated
 public class CartService {
     private Map<Product, Byte> products;
     private LocalDateTime lastUpdate;
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    public void from(@NotNull(message = "Cart data is required") @Valid CartDTO data) {
+    public void from(@NotNull(message = "Cart data is required") @Valid CartDTO data) throws IllegalArgumentException {
         this.lastUpdate = data.lastUpdate();
 
         Map<Product, Byte> resolvedProducts = new LinkedHashMap<>();
