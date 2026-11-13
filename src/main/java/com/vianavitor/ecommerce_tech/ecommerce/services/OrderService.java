@@ -2,12 +2,11 @@ package com.vianavitor.ecommerce_tech.ecommerce.services;
 
 import com.vianavitor.ecommerce_tech.auth.services.UserService;
 
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.CartDTO;
 import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.UsersOrderDTO;
-import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
 import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
 import com.vianavitor.ecommerce_tech.ecommerce.exceptions.OrderNotCanceledException;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Order;
-import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.PurchasedProduct;
 import com.vianavitor.ecommerce_tech.auth.entities.User;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.OrderStatus;
@@ -25,7 +24,7 @@ public class OrderService {
     private OrderRepository repository;
 
     @Autowired
-    private ProductService productService;
+    private CartService cartService;
 
     @Autowired
     private UserService userService;
@@ -49,8 +48,10 @@ public class OrderService {
                 .toList();
     }
 
-    public void orderProducts(Integer userId, Map<Integer, Byte> cart) throws NotFoundResourceException, IllegalArgumentException {
-        if (cart.isEmpty()) {
+    public void orderProducts(Integer userId, CartDTO dto) throws NotFoundResourceException, IllegalArgumentException {
+        cartService.from(dto);
+
+        if (cartService.hasProducts()) {
             throw new IllegalArgumentException("There are no products to order");
         }
 
@@ -60,19 +61,7 @@ public class OrderService {
         Order userOrder = repository.save(new Order(null, user, OrderStatus.IN_PROCESS, now, now));
 
         // attach products bought with the order
-        List<PurchasedProduct> purchasedProducts = new ArrayList<>();
-
-        for (var entry = cart.entrySet().iterator(); entry.hasNext();) {
-            Map.Entry<Integer, Byte> current = entry.next();
-
-            Integer productId = current.getKey();
-            Byte productAmount = current.getValue();
-
-            Product product = productService.findById(productId);
-            purchasedProducts.add(
-                    new PurchasedProduct(null, product, userOrder, productAmount)
-            );
-        }
+        List<PurchasedProduct> purchasedProducts = cartService.toPurchasedProducts(userOrder);
 
         purchasedProductRepository.saveAll(purchasedProducts);
     }

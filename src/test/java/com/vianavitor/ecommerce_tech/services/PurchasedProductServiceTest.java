@@ -1,14 +1,18 @@
 package com.vianavitor.ecommerce_tech.services;
 
-import com.vianavitor.ecommerce_tech.dtos.response.OrdersProductDTO;
-import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
-import com.vianavitor.ecommerce_tech.models.Order;
-import com.vianavitor.ecommerce_tech.models.Product;
-import com.vianavitor.ecommerce_tech.models.PurchasedProduct;
-import com.vianavitor.ecommerce_tech.models.User;
-import com.vianavitor.ecommerce_tech.models.aux.enums.OrderStatus;
-import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
-import com.vianavitor.ecommerce_tech.repositories.PurchasedProductRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.services.OrderService;
+
+import com.vianavitor.ecommerce_tech.ecommerce.services.PurchasedProductService;
+
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.OrdersProductDTO;
+import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Order;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.PurchasedProduct;
+import com.vianavitor.ecommerce_tech.auth.entities.User;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.OrderStatus;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.PurchasedProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

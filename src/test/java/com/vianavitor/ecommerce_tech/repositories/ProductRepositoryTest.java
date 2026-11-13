@@ -2,13 +2,14 @@ package com.vianavitor.ecommerce_tech.repositories;
 
 
 import com.vianavitor.ecommerce_tech.aux.TestcontainerClass;
-import com.vianavitor.ecommerce_tech.dtos.response.ProductSearchResultsDTO;
-import com.vianavitor.ecommerce_tech.models.Product;
-import com.vianavitor.ecommerce_tech.models.Ssd;
-import com.vianavitor.ecommerce_tech.models.aux.enums.ProductCategory;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdProtocol;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.ProductSearchResultsDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Ssd;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdProtocol;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,14 +1,20 @@
 package com.vianavitor.ecommerce_tech.services;
 
-import com.vianavitor.ecommerce_tech.dtos.response.UsersOrderDTO;
-import com.vianavitor.ecommerce_tech.exceptions.NotFoundResourceException;
-import com.vianavitor.ecommerce_tech.exceptions.OrderNotCanceledException;
-import com.vianavitor.ecommerce_tech.models.Order;
-import com.vianavitor.ecommerce_tech.models.Product;
-import com.vianavitor.ecommerce_tech.models.User;
-import com.vianavitor.ecommerce_tech.models.aux.enums.OrderStatus;
-import com.vianavitor.ecommerce_tech.repositories.OrderRepository;
-import com.vianavitor.ecommerce_tech.repositories.PurchasedProductRepository;
+import com.vianavitor.ecommerce_tech.auth.services.UserService;
+
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.CartDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.services.OrderService;
+
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.UsersOrderDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
+import com.vianavitor.ecommerce_tech.ecommerce.exceptions.OrderNotCanceledException;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Order;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+import com.vianavitor.ecommerce_tech.auth.entities.User;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.OrderStatus;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.OrderRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.PurchasedProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +95,7 @@ class OrderServiceTest {
     @Test
     void orderProducts_ShouldCreateOrderAndPurchasedProducts_WhenValidInput() throws NotFoundResourceException {
         // Given
-        Map<Integer, Byte> cart = Map.of(10, (byte) 2);
+        CartDTO cart = new CartDTO(Map.of(10, (byte) 2), LocalDateTime.now());
         when(userService.getById(1)).thenReturn(sampleUser);
         when(productService.findById(10)).thenReturn(sampleProduct);
         when(repository.save(any(Order.class))).thenReturn(sampleOrder);
@@ -106,7 +113,7 @@ class OrderServiceTest {
     @Test
     void orderProducts_ShouldThrowIllegalArgumentException_WhenCartIsEmpty() {
         // Given
-        Map<Integer, Byte> emptyCart = Collections.emptyMap();
+        CartDTO emptyCart = new CartDTO(Collections.emptyMap(), LocalDateTime.now());
 
         // When / Then
         assertThrows(IllegalArgumentException.class, () -> orderService.orderProducts(1, emptyCart));

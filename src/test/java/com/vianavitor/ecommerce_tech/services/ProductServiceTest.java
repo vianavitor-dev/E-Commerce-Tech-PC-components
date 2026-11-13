@@ -1,12 +1,20 @@
 package com.vianavitor.ecommerce_tech.services;
 
-import com.vianavitor.ecommerce_tech.dtos.request.PcComponentsDTO;
-import com.vianavitor.ecommerce_tech.dtos.response.PcCompatibilityCheckResultDTO;
-import com.vianavitor.ecommerce_tech.models.*;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdFormFactor;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdInterface;
-import com.vianavitor.ecommerce_tech.models.aux.enums.SsdProtocol;
-import com.vianavitor.ecommerce_tech.repositories.ProductRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.PcComponentsDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.PcCompatibilityCheckResultDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Ssd;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Ram;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Psu;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Motherboard;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Hd;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Gpu;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Cpu;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdProtocol;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

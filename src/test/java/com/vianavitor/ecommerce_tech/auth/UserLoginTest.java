@@ -1,9 +1,9 @@
 package com.vianavitor.ecommerce_tech.auth;
 
 import com.vianavitor.ecommerce_tech.aux.TestcontainerClass;
-import com.vianavitor.ecommerce_tech.dtos.request.UserRegisterFormsDTO;
-import com.vianavitor.ecommerce_tech.models.User;
-import com.vianavitor.ecommerce_tech.services.UserService;
+import com.vianavitor.ecommerce_tech.auth.dtos.request.UserRegisterFormsDTO;
+import com.vianavitor.ecommerce_tech.auth.entities.User;
+import com.vianavitor.ecommerce_tech.auth.services.UserService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
