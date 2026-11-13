@@ -5,6 +5,8 @@ import com.vianavitor.ecommerce_tech.ecommerce.entities.Order;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
 import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
 import com.vianavitor.ecommerce_tech.ecommerce.services.CartService;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +38,7 @@ class CartServiceTest {
         cartService.from(new CartDTO(Map.of(10, (byte) 2), lastUpdate));
         var purchasedProducts = cartService.toPurchasedProducts(order);
 
-        assertFalse(cartService.isEmpty());
+        assertTrue(cartService.hasProducts());
         assertEquals(lastUpdate, cartService.getLastUpdate());
         assertEquals(1, purchasedProducts.size());
         assertSame(product, purchasedProducts.getFirst().getProduct());
@@ -48,7 +50,7 @@ class CartServiceTest {
     void emptyCartHasNoProducts() {
         cartService.from(new CartDTO(Map.of(), LocalDateTime.now()));
 
-        assertTrue(cartService.isEmpty());
+        assertFalse(cartService.hasProducts());
         verifyNoInteractions(productRepository);
     }
 
@@ -58,5 +60,15 @@ class CartServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> cartService.from(cart));
         verifyNoInteractions(productRepository);
+    }
+
+    @Test
+    void hasProductsSupportsJakartaMethodValidation() throws NoSuchMethodException {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            var violations = factory.getValidator().forExecutables().validateParameters(
+                    cartService, CartService.class.getMethod("hasProducts"), new Object[0]);
+
+            assertTrue(violations.isEmpty());
+        }
     }
 }

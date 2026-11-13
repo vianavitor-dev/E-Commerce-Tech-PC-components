@@ -8,6 +8,7 @@ import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
 import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.Map;
 @RequestScope
 @Validated
 public class CartService {
+    @Getter(AccessLevel.NONE)
     private Map<Product, Byte> products;
     private LocalDateTime lastUpdate;
     private final ProductRepository productRepository;

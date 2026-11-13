@@ -92,7 +92,7 @@ class OrderServiceTest {
         // Given
         CartDTO cart = new CartDTO(Map.of(10, (byte) 2), LocalDateTime.now());
         List<PurchasedProduct> purchasedProducts = List.of(new PurchasedProduct());
-        when(cartService.isEmpty()).thenReturn(false);
+        when(cartService.hasProducts()).thenReturn(true);
         when(cartService.toPurchasedProducts(sampleOrder)).thenReturn(purchasedProducts);
         when(userService.getById(1)).thenReturn(sampleUser);
         when(repository.save(any(Order.class))).thenReturn(sampleOrder);
@@ -112,7 +112,7 @@ class OrderServiceTest {
     void orderProducts_ShouldThrowIllegalArgumentException_WhenCartIsEmpty() {
         // Given
         CartDTO emptyCart = new CartDTO(Collections.emptyMap(), LocalDateTime.now());
-        when(cartService.isEmpty()).thenReturn(true);
+        when(cartService.hasProducts()).thenReturn(false);
 
         // When / Then
         assertThrows(IllegalArgumentException.class, () -> orderService.orderProducts(1, emptyCart));
