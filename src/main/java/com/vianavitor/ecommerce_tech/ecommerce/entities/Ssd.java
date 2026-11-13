@@ -1,0 +1,50 @@
+package com.vianavitor.ecommerce_tech.ecommerce.entities;
+
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdProtocol;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
+@Entity(name = "ssds")
+public class Ssd extends Product {
+    private String model;
+
+    @Column(name = "capacity_gb")
+    private Short capacityGb;
+
+    @Column(name = "interface")
+    private SsdInterface ssdInterface = SsdInterface.SATA;
+
+    @Column(name = "form_factor")
+    private SsdFormFactor formFactor = SsdFormFactor.INCH_2_5;
+
+    private SsdProtocol protocol = SsdProtocol.AHCI;
+
+    @Column(name = "read_speed_mb")
+    private Short readSpeedMb;
+
+    @Column(name = "write_speed_mb")
+    private Short writeSpeedMb;
+
+    public Ssd(String name, String sku, BigDecimal rating, int ratedCount, String brand, ProductCategory category, String ShortDescription, String technicalDescription, BigDecimal price, Short stock, String model, Short capacityGb, SsdInterface ssdInterface, SsdFormFactor formFactor, SsdProtocol protocol, Short readSpeedMb, Short writeSpeedMb) {
+        super(null, name, sku, rating, ratedCount, brand, category, ShortDescription, technicalDescription, price, stock);
+        this.model = model;
+        this.capacityGb = capacityGb;
+        this.ssdInterface = ssdInterface;
+        this.formFactor = formFactor;
+        this.protocol = protocol;
+        this.readSpeedMb = readSpeedMb;
+        this.writeSpeedMb = writeSpeedMb;
+    }
+}

@@ -1,0 +1,69 @@
+package com.vianavitor.ecommerce_tech.auth.config;
+
+import com.vianavitor.ecommerce_tech.auth.security.UserAuthenticatorFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration {
+    public final static String[] NO_REQUIRED_AUTHENTICATION_ENDPOINTS = {
+            "/api/users",                   // create user
+            "/api/users/login",
+            "/api/users/{id}/change-password",
+            "/api/products",                // search
+            "/api/products/{id}",           // get by ID
+            "/api/products/all"             // get all
+    };
+
+    public final static String[] REQUIRED_CUSTOMER_AUTHENTICATION_ENDPOINTS = {
+            "/api/products/rate",                   // rate the product
+            "/api/products/compatibility-check",    // check the selected PC components
+            "/api/orders/**",                          // get by ID, get by user, order products, refund, change status
+            "/api/purchased-products",              // get by order
+            "/api/users/profile",                   // get by ID, modify
+            "/api/users/deactivate"                 // deactivate
+    };
+
+    public final static String[] REQUIRED_ADMINISTRATOR_AUTHENTICATION_ENDPOINTS = {
+            "/api/users/{id}/activate"  // activate account
+    };
+
+    @Autowired
+    UserAuthenticatorFilter userAuthenticatorFilter;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(NO_REQUIRED_AUTHENTICATION_ENDPOINTS).permitAll()
+                        .requestMatchers(REQUIRED_CUSTOMER_AUTHENTICATION_ENDPOINTS).hasRole("CUSTOMER")
+                        .requestMatchers(REQUIRED_ADMINISTRATOR_AUTHENTICATION_ENDPOINTS).hasRole("ADMINISTRATOR")
+                        .anyRequest().denyAll()
+                ).addFilterBefore(userAuthenticatorFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+    }
+}

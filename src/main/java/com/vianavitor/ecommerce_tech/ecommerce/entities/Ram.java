@@ -1,0 +1,28 @@
+package com.vianavitor.ecommerce_tech.ecommerce.entities;
+
+import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
+
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.RamFormFactor;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
+@Entity(name = "rams")
+public class Ram extends Product {
+    private String model;
+
+    @Column(name = "capacity_gb")
+    private Byte capacityGb;
+
+    @Column(name = "ddr_generation")
+    private String ddrGeneration;
+
+    @Column(name = "frequency_mhz")
+    private Short frequencyMhz;
+    private Byte modules;
+    private RamFormFactor formFactor = RamFormFactor.DIMM;
+}
