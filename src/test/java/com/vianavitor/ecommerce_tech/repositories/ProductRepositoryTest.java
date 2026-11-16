@@ -11,6 +11,14 @@ import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdProtocol;
 import jakarta.persistence.EntityManager;
+import com.vianavitor.ecommerce_tech.auth.entities.User;
+import com.vianavitor.ecommerce_tech.auth.repositories.UserRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.RatingHistoryId;
+import com.vianavitor.ecommerce_tech.ecommerce.repositories.RatingHistoryRepository;
+import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
+import java.util.function.Consumer;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +47,13 @@ public class ProductRepositoryTest extends TestcontainerClass {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RatingHistoryRepository ratingHistoryRepository;
 
     Product product;
 
@@ -79,6 +94,77 @@ public class ProductRepositoryTest extends TestcontainerClass {
                 Product managedProduct = entityManager.merge(product);
                 entityManager.remove(managedProduct);
                 entityManager.flush();
+            });
+        }
+    }
+
+    @Test
+    void ratingLifecycleUpdatesAverageFromPreviousRatingAndCount() {
+        withRatingUsers(users -> {
+            int first = users.get(0).getId();
+            int second = users.get(1).getId();
+            int third = users.get(2).getId();
+            assertThat(productService.rateProduct(product.getId(), first, new BigDecimal("4")))
+                    .isEqualByComparingTo("4.0");
+            assertThat(productService.rateProduct(product.getId(), second, new BigDecimal("5")))
+                    .isEqualByComparingTo("4.5");
+            assertThat(productService.rateProduct(product.getId(), third, new BigDecimal("3")))
+                    .isEqualByComparingTo("4.0");
+            // Replacing a rating adjusts the sum without adding another user.
+            assertThat(productService.rateProduct(product.getId(), first, new BigDecimal("1")))
+                    .isEqualByComparingTo("3.0");
+            assertThat(repository.findById(product.getId()).orElseThrow().getRatedCount()).isEqualTo(3);
+            assertThat(productService.removesRate(product.getId(), second)).isEqualByComparingTo("2.0");
+            assertThat(productService.removesRate(product.getId(), third)).isEqualByComparingTo("1.0");
+            assertThat(productService.removesRate(product.getId(), first)).isEqualByComparingTo("0.0");
+            assertThat(repository.findById(product.getId()).orElseThrow().getRatedCount()).isZero();
+            assertThatThrownBy(() -> productService.removesRate(product.getId(), first))
+                    .isInstanceOf(NotFoundResourceException.class);
+        });
+    }
+
+    @Test
+    void ratingAndHistoryRollBackTogether() {
+        withRatingUsers(users -> {
+            int userId = users.getFirst().getId();
+            transactionTemplate.executeWithoutResult(status -> {
+                productService.rateProduct(product.getId(), userId, new BigDecimal("4.25"));
+                status.setRollbackOnly();
+            });
+            assertThat(ratingHistoryRepository.existsById(new RatingHistoryId(userId, product.getId()))).isFalse();
+            Product stored = repository.findById(product.getId()).orElseThrow();
+            assertThat(stored.getRatedCount()).isZero();
+            assertThat(stored.getRating()).isEqualByComparingTo("0.0");
+
+            assertThat(productService.rateProduct(product.getId(), userId, new BigDecimal("4.25")))
+                    .isEqualByComparingTo("4.3");
+            assertThat(ratingHistoryRepository.findById(new RatingHistoryId(userId, product.getId()))
+                    .orElseThrow().getRate()).isEqualByComparingTo("4.3");
+            transactionTemplate.executeWithoutResult(status -> {
+                productService.removesRate(product.getId(), userId);
+                status.setRollbackOnly();
+            });
+            assertThat(ratingHistoryRepository.existsById(new RatingHistoryId(userId, product.getId()))).isTrue();
+            assertThat(repository.findById(product.getId()).orElseThrow().getRatedCount()).isEqualTo(1);
+        });
+    }
+
+    private void withRatingUsers(Consumer<List<User>> action) {
+        List<User> users = new ArrayList<>();
+        try {
+            for (int index = 0; index < 3; index++) {
+                User user = new User();
+                user.setName("Rating test " + index);
+                user.setEmail("rating-test-" + index + "@example.com");
+                user.setPassword("test-password");
+                user.setActive(true);
+                users.add(userRepository.saveAndFlush(user));
+            }
+            action.accept(users);
+        } finally {
+            users.forEach(user -> {
+                ratingHistoryRepository.deleteById(new RatingHistoryId(user.getId(), product.getId()));
+                userRepository.deleteById(user.getId());
             });
         }
     }

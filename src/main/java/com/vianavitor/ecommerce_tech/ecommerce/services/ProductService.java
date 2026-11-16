@@ -13,16 +13,14 @@ import com.vianavitor.ecommerce_tech.ecommerce.entities.Motherboard;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Gpu;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Cpu;
 import com.vianavitor.ecommerce_tech.shared.exceptions.NotFoundResourceException;
-import com.vianavitor.ecommerce_tech.ecommerce.entities.RatingHistory;
-import com.vianavitor.ecommerce_tech.ecommerce.entities.RatingHistoryId;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.ecommerce.repositories.ProductRepository;
-import com.vianavitor.ecommerce_tech.ecommerce.repositories.RatingHistoryRepository;
 import com.vianavitor.ecommerce_tech.auth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -39,69 +37,41 @@ public class ProductService {
     private UserRepository userRepository;
 
     @Autowired
-    private RatingHistoryRepository ratingHistoryRepository;
+    private RatingHistoryService ratingHistoryService;
 
-    public BigDecimal rateProduct(Integer id, Integer userId, BigDecimal rate) throws NotFoundResourceException {
-        Product product = this.findById(id);
+    @Transactional
+    public BigDecimal rateProduct(Integer productId, Integer userId, BigDecimal rate) throws NotFoundResourceException {
+        Product product = repository.findByIdForUpdate(productId)
+                .orElseThrow(() -> new NotFoundResourceException(
+                        "Not found any product with the provided ID code"));
         boolean userExists = userRepository.existsById(userId);
 
         if (!userExists) {
             throw new NotFoundResourceException("Not found user with the provided ID");
         }
 
-        // saves user rating into the history
-        Optional<RatingHistory> result = ratingHistoryRepository
-                .findById(new RatingHistoryId(userId, id));
-
-        boolean neverRatedThisProductBefore = result.isEmpty();
-        RatingHistory history;
-
-        int firstRate = 0;
-        double userLastRate = 0.0;
-
-        if (neverRatedThisProductBefore) { // only sum the count if it is the fist time this user rate this product
-            history = new RatingHistory(userId, id, rate);
-            firstRate = 1;
-        } else {
-            history = result.get();
-            userLastRate = history.getRate().doubleValue();
-
-            history.setRate(rate);
-        }
-
-        ratingHistoryRepository.save(history);
-
-        int count = product.getRatedCount();
-        double lastSum = product.getRating().doubleValue() * count;
-        double currentSum = (lastSum - userLastRate) + rate.doubleValue();
-        double average = currentSum/ (count + firstRate);
-
-        product.setRating(BigDecimal.valueOf(average));
-        product.setRatedCount(count + firstRate);
-        product = repository.save(product);
+        ratingHistoryService.addRate(userId, product, rate);
+        repository.save(product);
 
         return product.getRating();
     }
 
+    @Transactional
     public BigDecimal removesRate(Integer productId, Integer userId) throws NotFoundResourceException {
-        RatingHistoryId historyId = new RatingHistoryId(userId, productId);
+        Product product = repository.findByIdForUpdate(productId)
+                .orElseThrow(() -> new NotFoundResourceException(
+                        "Not found any product with the provided ID code"));
 
-        RatingHistory history = ratingHistoryRepository.findById(historyId)
-                .orElseThrow(() -> new NotFoundResourceException("This user have never rated this product"));
+        boolean userExists = userRepository.existsById(userId);
 
-        // updates the product rating before deleting the history register
-        Product product = this.findById(productId);
+        if (!userExists) {
+            throw new NotFoundResourceException("Not found user with the provided ID");
+        }
 
-        int count = product.getRatedCount();
-        double lastSum = product.getRating().doubleValue() * count;
-        double currentSum = lastSum - history.getRate().doubleValue();
-        double average = (count > 1) ? currentSum/ (count -1) : 0; // prevents division by 0
-
-        product.setRating(BigDecimal.valueOf(average));
-        product.setRatedCount(count -1);
+        var history = ratingHistoryService.clearRateFrom(product, userId);
         product = repository.save(product);
 
-        ratingHistoryRepository.delete(history);
+        ratingHistoryService.removeRate(history);
 
         return product.getRating();
     }

@@ -5,6 +5,8 @@ import com.vianavitor.ecommerce_tech.ecommerce.entities.Product;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.shared.repositories.ReadOnlyInterface;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.domain.Page;
@@ -14,6 +16,10 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends ReadOnlyInterface<Product, Integer> {
     Optional<Product> findBySku(String sku);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from products p where p.id = :id")
+    Optional<Product> findByIdForUpdate(Integer id);
 
     Product save(Product entity);
 
