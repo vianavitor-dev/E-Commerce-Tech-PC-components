@@ -16,7 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/products")
@@ -25,23 +27,24 @@ public class ProductController {
     private ProductService service;
 
     @GetMapping
-    public ResponseEntity<List<?>> search(
+    public ResponseEntity<Page<ProductSearchResultsDTO>> search(
             @Nullable @RequestParam String name,
-            @Nullable @RequestParam ProductCategory category
+            @Nullable @RequestParam ProductCategory category,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
-        List<? extends ProductSearchResultsDTO> results = null;
+        Page<ProductSearchResultsDTO> results;
 
         if (name == null) {
             if (category == null) {
-                results = service.findAll();
+                results = service.findAll(pageable);
             } else {
-                results = service.findByCategory(category);
+                results = service.findByCategory(category, pageable);
             }
         } else {
             if (category == null) {
-                results = service.findByName(name);
+                results = service.findByName(name, pageable);
             } else {
-                results = service.findByCategoryAndName(category, name);
+                results = service.findByCategoryAndName(category, name, pageable);
             }
         }
 
@@ -59,8 +62,9 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<?>> searchAll() {
-        List<? extends ProductSearchResultsDTO> results = service.findAll();
+    public ResponseEntity<Page<ProductSearchResultsDTO>> searchAll(
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        Page<ProductSearchResultsDTO> results = service.findAll(pageable);
 
         return ResponseEntity.ok(results);
     }

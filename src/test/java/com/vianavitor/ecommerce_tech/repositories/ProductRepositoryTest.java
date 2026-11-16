@@ -18,7 +18,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 
 @SpringBootTest
@@ -76,11 +84,64 @@ public class ProductRepositoryTest extends TestcontainerClass {
     }
 
     @Test
+    void paginatesAllSearchVariantsWithAccurateTotals() {
+        List<Product> fixtures = new ArrayList<>();
+        try {
+            transactionTemplate.executeWithoutResult(status -> {
+                for (int index = 0; index < 3; index++) {
+                    Product fixture = new Product();
+                    fixture.setName("Paginationfixture " + index);
+                    fixture.setSku("PAGINATION-FIXTURE-" + index);
+                    fixture.setCategory(ProductCategory.SSD);
+                    fixture.setBrand("Pagination");
+                    fixture.setShortDescription("");
+                    fixture.setTechnicalDescription("");
+                    fixture.setPrice(BigDecimal.TEN);
+                    fixture.setRating(BigDecimal.ZERO);
+                    fixture.setStock((short) 1);
+                    entityManager.persist(fixture);
+                    fixtures.add(fixture);
+                }
+            });
+
+            assertPages(pageable -> repository.searchByNameContaining("Paginationfixture", pageable), 3);
+            assertPages(pageable -> repository.searchByCategoryAndNameContaining(
+                    ProductCategory.SSD, "Paginationfixture", pageable), 3);
+            long categoryTotal = repository.findByCategory(ProductCategory.SSD, PageRequest.of(0, 1)).getTotalElements();
+            assertPages(pageable -> repository.findByCategory(ProductCategory.SSD, pageable), categoryTotal);
+            long total = repository.findAll(PageRequest.of(0, 1)).getTotalElements();
+            assertPages(repository::findAll, total);
+        } finally {
+            transactionTemplate.executeWithoutResult(status -> fixtures.forEach(fixture ->
+                    entityManager.remove(entityManager.merge(fixture))));
+        }
+    }
+
+    private void assertPages(Function<Pageable, ? extends Page<?>> search, long total) {
+        var first = search.apply(PageRequest.of(0, 1, Sort.by("id")));
+        var second = search.apply(PageRequest.of(1, 1, Sort.by("id")));
+        var beyond = search.apply(PageRequest.of((int) total, 1, Sort.by("id")));
+
+        assertThat(first.getContent()).hasSize(1);
+        assertThat(second.getContent()).hasSize(1);
+        Object firstId = first.getContent().getFirst() instanceof Product product
+                ? product.getId() : ((ProductSearchResultsDTO) first.getContent().getFirst()).getId();
+        Object secondId = second.getContent().getFirst() instanceof Product product
+                ? product.getId() : ((ProductSearchResultsDTO) second.getContent().getFirst()).getId();
+        assertThat(firstId).isNotEqualTo(secondId);
+        assertThat(first.getTotalElements()).isEqualTo(total);
+        assertThat(second.getTotalElements()).isEqualTo(total);
+        assertThat(first.getTotalPages()).isEqualTo((int) total);
+        assertThat(beyond.getContent()).isEmpty();
+        assertThat(beyond.getTotalElements()).isEqualTo(total);
+    }
+
+    @Test
     public void searchByNameContainingTest__whenItsSSD() {
         String name = "SSD de 512 GB";
 
-        List<ProductSearchResultsDTO> results = repository.searchByNameContaining(name);
-        Assert.notEmpty(results, "No results found when it were expected to");
+        Page<ProductSearchResultsDTO> results = repository.searchByNameContaining(name, PageRequest.of(0, 1));
+        Assert.notEmpty(results.getContent(), "No results found when it were expected to");
         Assert.isTrue(results.stream()
                         .filter(dto -> !dto.getCategory().equals(ProductCategory.SSD))
                         .findAny()
@@ -94,10 +155,10 @@ public class ProductRepositoryTest extends TestcontainerClass {
         String nameInput = "SSD da Adata";
         ProductCategory categoryInput = ProductCategory.SSD;
 
-        List<ProductSearchResultsDTO> results = repository.searchByCategoryAndNameContaining(categoryInput, nameInput);
+        Page<ProductSearchResultsDTO> results = repository.searchByCategoryAndNameContaining(categoryInput, nameInput, PageRequest.of(0, 1));
 
-        Assert.notEmpty(results, "No results found when it were expected to");
-        Assert.isTrue(results.getFirst().getBrand().equals("Adata"), "The first item were expected to be from Adata brand");
+        Assert.notEmpty(results.getContent(), "No results found when it were expected to");
+        Assert.isTrue(results.getContent().getFirst().getBrand().equals("Adata"), "The first item were expected to be from Adata brand");
     }
 
     @Test

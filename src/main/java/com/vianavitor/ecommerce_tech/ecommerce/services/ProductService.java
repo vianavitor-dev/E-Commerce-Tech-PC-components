@@ -23,6 +23,8 @@ import com.vianavitor.ecommerce_tech.ecommerce.repositories.RatingHistoryReposit
 import com.vianavitor.ecommerce_tech.auth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -118,16 +120,16 @@ public class ProductService {
                 ));
     }
 
-    public List<ProductSearchResultsDTO> findByName(String name) {
-        return repository.searchByNameContaining(name);
+    public Page<ProductSearchResultsDTO> findByName(String name, Pageable pageable) {
+        return repository.searchByNameContaining(name, pageable);
     }
 
-    public List<ProductSearchResultsDTO> findByCategory(ProductCategory category) {
-        return repository.findByCategory(category);
+    public Page<ProductSearchResultsDTO> findByCategory(ProductCategory category, Pageable pageable) {
+        return repository.findByCategory(category, pageable);
     }
 
-    public List<ProductSearchResultsDTO> findByCategoryAndName(ProductCategory category, String name) {
-        return repository.searchByCategoryAndNameContaining(category, name);
+    public Page<ProductSearchResultsDTO> findByCategoryAndName(ProductCategory category, String name, Pageable pageable) {
+        return repository.searchByCategoryAndNameContaining(category, name, pageable);
     }
 
 //    @AllArgsConstructor
@@ -186,11 +188,9 @@ public class ProductService {
         }
     }
 
-    public List<? extends ProductSearchResultsDTO> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(ProductSearchResultsDTOImpl::new)
-                .toList();
+    public Page<ProductSearchResultsDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(ProductSearchResultsDTOImpl::new);
     }
 
     private int parseStrSocketToNumber(String str) {
