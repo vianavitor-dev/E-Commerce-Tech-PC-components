@@ -7,6 +7,7 @@ import com.vianavitor.ecommerce_tech.auth.services.UserService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,16 +35,23 @@ public class UserLoginTest extends TestcontainerClass {
     @Autowired
     private UserService service;
 
+    private Integer userId;
+
     @BeforeEach
     void setUp() {
         var userForms = new UserRegisterFormsDTO("test1", "test1@email.com", "123");
         service.createNew(userForms);
+        userId = service.findByEmail(userForms.email()).getId();
     }
 
     @AfterEach
     void tearDown() {
+        if (userId == null) {
+            return;
+        }
+
         transactionTemplate.executeWithoutResult(status -> {
-            var result = entityManager.find(User.class, 1);
+            var result = entityManager.find(User.class, userId);
 
             if (result != null) {
                 entityManager.remove(result);
@@ -52,7 +60,7 @@ public class UserLoginTest extends TestcontainerClass {
         });
     }
 
-    @Test
+    @RepeatedTest(3)
     public void testLogin__whenSuccessful() throws Exception {
         mockMvc.perform(
                 post("http://localhost:8081/api/users/login")
