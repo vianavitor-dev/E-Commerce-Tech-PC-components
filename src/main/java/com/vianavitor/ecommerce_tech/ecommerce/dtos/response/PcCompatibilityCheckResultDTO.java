@@ -12,6 +12,13 @@ public class PcCompatibilityCheckResultDTO {
     private PcComponentsReportDTO componentsReport;
     private String extraInformation;
 
+    /** Whether at least one supplied component could be evaluated. */
+    @JsonProperty
+    public boolean hasCompatibilityChecks() {
+        return compatibleComponentsCount() + incompatibleComponentsCount() > 0;
+    }
+
+    /** Summarizes evaluated components only; consult hasCompatibilityChecks and extraInformation for skipped checks. */
     @JsonProperty
     public boolean areAllComponentsCompatible() {
         boolean result = true;

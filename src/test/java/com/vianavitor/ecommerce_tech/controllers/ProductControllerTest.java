@@ -9,6 +9,7 @@ import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.ProductSearchResult
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
 import com.vianavitor.ecommerce_tech.ecommerce.services.CompatibilityCheckService;
+import com.vianavitor.ecommerce_tech.ecommerce.services.compatibility.CompatibilityCheckFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,6 +69,29 @@ class ProductControllerTest {
         verify(compatibilityCheckService).checkPcComponentsCompatibility(argThat(request ->
                 request.getCpu().getSocket().equals("AM5")
                         && request.getMotherboard() != null && request.getPsu() != null));
+    }
+
+    @Test
+    void compatibilityEndpointAcceptsRamModulesWithoutMotherboardOrPsu() throws Exception {
+        var realService = new CompatibilityCheckService(new CompatibilityCheckFactory());
+        when(compatibilityCheckService.checkPcComponentsCompatibility(any(PcComponentsDTO.class)))
+                .thenAnswer(invocation -> realService.checkPcComponentsCompatibility(invocation.getArgument(0)));
+
+        mvc.perform(post("/api/products/compatibility-check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"rams":[
+                                  {"name":"RAM 1","ddrGeneration":"DDR4","formFactor":"DIMM"},
+                                  {"name":"RAM 2","ddrGeneration":"DDR5","formFactor":"DIMM"}
+                                ]}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hasCompatibilityChecks").value(true))
+                .andExpect(jsonPath("$.areAllComponentsCompatible").value(false))
+                .andExpect(jsonPath("$.compatibleComponentsCount").value(0))
+                .andExpect(jsonPath("$.incompatibleComponentsCount").value(2))
+                .andExpect(jsonPath("$.componentsReport.rams[0].reportText")
+                        .value("Selected RAM modules must use the same DDR generation.\n"));
     }
 
     @ParameterizedTest

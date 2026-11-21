@@ -8,6 +8,7 @@ import com.vianavitor.ecommerce_tech.ecommerce.entities.Motherboard;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Psu;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Ram;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.Ssd;
+import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.RamFormFactor;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdFormFactor;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdInterface;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.SsdProtocol;
@@ -173,12 +174,13 @@ class CompatibilityCheckServiceTest {
         var result = service.checkPcComponentsCompatibility(
                 PcComponentsDTO.builder(motherboard, psu).rams(List.of(first, second)).build());
 
-        assertThat(result.compatibleComponentsCount()).isEqualTo(1);
-        assertThat(result.incompatibleComponentsCount()).isEqualTo(1);
+        assertThat(result.compatibleComponentsCount()).isZero();
+        assertThat(result.incompatibleComponentsCount()).isEqualTo(2);
         assertThat(result.getComponentsReport().getRams().getLast().reportText()).isEqualTo(
                 "* This RAM DDR generation is older than the required (DDR4) \n"
                         + "* You have exceeded the max RAM capacity available by your motherboard, if you mistake please remove this one \n"
-                        + "* You have selected more RAMs than your motherboard can support, if you mistake please remove this one");
+                        + "* You have selected more RAMs than your motherboard can support, if you mistake please remove this one\n"
+                        + "Selected RAM modules must use the same DDR generation.\n");
         assertThat(result.getExtraInformation()).isEqualTo(
                 "*The chosen RAMs capacity are exceeding the max capacity\n"
                         + "supported by your motherboard (8Gb). \n \n\n");
@@ -228,5 +230,167 @@ class CompatibilityCheckServiceTest {
         assertThat(empty.incompatibleComponentsCount()).isZero();
         assertThat(empty.getComponentsReport()).hasAllNullFieldsOrProperties();
         assertThat(empty.getExtraInformation()).isEmpty();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"DDR4,DIMM,true", "DDR5,DIMM,false", "DDR4,SO_DIMM,false", "DDR5,SO_DIMM,false"})
+    void comparesRamModulesWithoutMotherboardOrPsu(String generation, RamFormFactor formFactor, boolean compatible) {
+        Ram first = ram("first", "DDR4", RamFormFactor.DIMM);
+        Ram second = ram("second", generation, formFactor);
+
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder()
+                .rams(List.of(first, second)).build());
+
+        assertThat(result.hasCompatibilityChecks()).isTrue();
+        assertThat(result.areAllComponentsCompatible()).isEqualTo(compatible);
+        assertThat(result.compatibleComponentsCount()).isEqualTo(compatible ? 2 : 0);
+        assertThat(result.incompatibleComponentsCount()).isEqualTo(compatible ? 0 : 2);
+        assertThat(result.getExtraInformation()).contains("no motherboard was supplied");
+        assertThat(result.getComponentsReport().getRams())
+                .extracting(report -> report.isPcComponentCompatible()).containsExactly(compatible, compatible);
+
+        var reversed = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(null, null)
+                .rams(List.of(second, first)).build());
+        assertThat(reversed.incompatibleComponentsCount()).isEqualTo(result.incompatibleComponentsCount());
+    }
+
+    @Test
+    void matchingRamModulesDoNotEraseMotherboardFailures() {
+        Ram first = ram("first", "DDR5", RamFormFactor.DIMM);
+        Ram second = ram("second", "DDR5", RamFormFactor.DIMM);
+
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(motherboard, null)
+                .rams(List.of(first, second)).build());
+
+        assertThat(result.incompatibleComponentsCount()).isEqualTo(2);
+        assertThat(result.getComponentsReport().getRams()).allSatisfy(report ->
+                assertThat(report.reportText()).contains("newer than the required (DDR4)"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"199,300,true", "200,300,true", "201,300,false", "32767,32767,false"})
+    void checksCombinedCpuAndGpuPowerWithoutMotherboard(short cpuWatts, short gpuWatts, boolean compatible) {
+        Cpu cpu = new Cpu();
+        cpu.setName("CPU");
+        cpu.setTdpWatts(cpuWatts);
+        Gpu gpu = new Gpu();
+        gpu.setName("GPU");
+        gpu.setPowerConsumption(gpuWatts);
+        gpu.setRecommendedPsuWatts((short) 400);
+
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(null, psu)
+                .cpu(cpu).gpu(gpu).build());
+
+        assertThat(result.hasCompatibilityChecks()).isTrue();
+        assertThat(result.areAllComponentsCompatible()).isEqualTo(compatible);
+        assertThat(result.compatibleComponentsCount()).isEqualTo(compatible ? 2 : 0);
+        assertThat(result.incompatibleComponentsCount()).isEqualTo(compatible ? 0 : 2);
+        assertThat(result.getComponentsReport().getCpu().isPcComponentCompatible()).isEqualTo(compatible);
+        assertThat(result.getExtraInformation()).contains("no motherboard was supplied", "other components and PSU headroom");
+        if (!compatible) {
+            assertThat(result.getComponentsReport().getCpu().reportText())
+                    .contains((cpuWatts + gpuWatts) + " watts", "500 watts");
+        }
+    }
+
+    @Test
+    void adequatePowerDoesNotEraseSocketMismatch() {
+        Cpu cpu = new Cpu();
+        cpu.setSocket("AM5");
+        cpu.setTdpWatts((short) 100);
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(motherboard, psu)
+                .cpu(cpu).build());
+
+        assertThat(result.areAllComponentsCompatible()).isFalse();
+        assertThat(result.getComponentsReport().getCpu().reportText()).contains("incompatible with the motherboard socket");
+    }
+
+    @Test
+    void combinedPowerDoesNotEraseGpuRecommendedPsuFailure() {
+        Cpu cpu = new Cpu();
+        cpu.setTdpWatts((short) 100);
+        Gpu gpu = new Gpu();
+        gpu.setPowerConsumption((short) 200);
+        gpu.setRecommendedPsuWatts((short) 600);
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(null, psu)
+                .cpu(cpu).gpu(gpu).build());
+
+        assertThat(result.areAllComponentsCompatible()).isFalse();
+        assertThat(result.compatibleComponentsCount()).isEqualTo(1);
+        assertThat(result.incompatibleComponentsCount()).isEqualTo(1);
+        assertThat(result.getComponentsReport().getGpu().reportText()).contains("600 watts");
+    }
+
+    @Test
+    void missingGpuPowerDoesNotCountAsZeroConsumption() {
+        Cpu cpu = new Cpu();
+        cpu.setTdpWatts((short) 100);
+        Gpu gpu = new Gpu();
+        gpu.setRecommendedPsuWatts((short) 400);
+
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(null, psu)
+                .cpu(cpu).gpu(gpu).build());
+
+        assertThat(result.getComponentsReport().getCpu()).isNull();
+        assertThat(result.compatibleComponentsCount()).isEqualTo(1);
+        assertThat(result.getExtraInformation()).contains("power specifications are missing");
+    }
+
+    @Test
+    void checksCombinedPowerWhenGpuRecommendationAndCpuSocketAreUnknown() {
+        Cpu cpu = new Cpu();
+        cpu.setTdpWatts((short) 100);
+        Gpu gpu = new Gpu();
+        gpu.setPowerConsumption((short) 200);
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(motherboard, psu)
+                .cpu(cpu).gpu(gpu).build());
+
+        assertThat(result.hasCompatibilityChecks()).isTrue();
+        assertThat(result.compatibleComponentsCount()).isEqualTo(2);
+        assertThat(result.incompatibleComponentsCount()).isZero();
+        assertThat(result.getExtraInformation()).contains("socket specifications are missing",
+                "GPU recommended PSU wattage was not checked");
+    }
+
+    @Test
+    void explainsChecksThatNeedMissingComponents() {
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder()
+                .cpu(new Cpu()).gpu(new Gpu()).ssds(List.of(new Ssd()))
+                .rams(List.of(ram("RAM", "DDR4", RamFormFactor.DIMM))).build());
+
+        assertThat(result.hasCompatibilityChecks()).isFalse();
+        assertThat(result.compatibleComponentsCount()).isZero();
+        assertThat(result.incompatibleComponentsCount()).isZero();
+        assertThat(result.getComponentsReport()).hasAllNullFieldsOrProperties();
+        assertThat(result.getExtraInformation()).contains("CPU socket", "RAM support", "SSD connectivity", "no PSU");
+    }
+
+    @Test
+    void checksCpuAndMotherboardWithoutPsu() {
+        Cpu cpu = new Cpu();
+        cpu.setSocket("LGA1700");
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder(motherboard, null)
+                .cpu(cpu).build());
+
+        assertThat(result.hasCompatibilityChecks()).isTrue();
+        assertThat(result.compatibleComponentsCount()).isEqualTo(1);
+        assertThat(result.getExtraInformation()).contains("no PSU was supplied");
+    }
+
+    @Test
+    void emptySelectionHasNoEvaluatedComponents() {
+        var result = service.checkPcComponentsCompatibility(PcComponentsDTO.builder().build());
+        assertThat(result.hasCompatibilityChecks()).isFalse();
+        assertThat(result.compatibleComponentsCount()).isZero();
+        assertThat(result.incompatibleComponentsCount()).isZero();
+    }
+
+    private Ram ram(String name, String generation, RamFormFactor formFactor) {
+        Ram ram = new Ram();
+        ram.setName(name);
+        ram.setDdrGeneration(generation);
+        ram.setFormFactor(formFactor);
+        ram.setCapacityGb((byte) 8);
+        return ram;
     }
 }

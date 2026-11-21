@@ -32,11 +32,11 @@ public class PcComponentsDTO {
         this.ssds = ssds;
     }
 
-    public static PcComponentsDTOBuilder builder(Motherboard motherboard, Psu psu) {
-        if (motherboard == null || psu == null) {
-            throw new IllegalArgumentException("the fields motherboard and psu (power supply unit) are both required");
-        }
+    public static PcComponentsDTOBuilder builder() {
+        return new PcComponentsDTOBuilder();
+    }
 
+    public static PcComponentsDTOBuilder builder(Motherboard motherboard, Psu psu) {
         return new PcComponentsDTOBuilder().motherboard(motherboard).psu(psu);
     }
 }
