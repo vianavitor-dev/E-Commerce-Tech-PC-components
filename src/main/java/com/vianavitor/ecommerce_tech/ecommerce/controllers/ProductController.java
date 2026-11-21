@@ -1,6 +1,7 @@
 package com.vianavitor.ecommerce_tech.ecommerce.controllers;
 
 import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.ecommerce.services.CompatibilityCheckService;
 
 import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.PcComponentsDTO;
 import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.ProductIdDTO;
@@ -25,6 +26,9 @@ import org.springframework.data.web.PageableDefault;
 public class ProductController {
     @Autowired
     private ProductService service;
+
+    @Autowired
+    private CompatibilityCheckService compatibilityCheckService;
 
     @GetMapping
     public ResponseEntity<Page<ProductSearchResultsDTO>> search(
@@ -58,7 +62,7 @@ public class ProductController {
 
     @PostMapping("/compatibility-check")
     public ResponseEntity<PcCompatibilityCheckResultDTO> checkPcComponentsCompatibility(@RequestBody PcComponentsDTO request) {
-        return ResponseEntity.ok(service.checkPcComponentsCompatibility(request));
+        return ResponseEntity.ok(compatibilityCheckService.checkPcComponentsCompatibility(request));
     }
 
     @GetMapping("/all")

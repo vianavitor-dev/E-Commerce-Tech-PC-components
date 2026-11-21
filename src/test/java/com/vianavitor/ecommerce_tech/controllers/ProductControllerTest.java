@@ -1,10 +1,16 @@
 package com.vianavitor.ecommerce_tech.controllers;
 
 import com.vianavitor.ecommerce_tech.ecommerce.controllers.ProductController;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.request.PcComponentsDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.PcCompatibilityCheckResultDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.aux.CompatibleReportDTO;
+import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.aux.PcComponentsReportDTO;
 import com.vianavitor.ecommerce_tech.ecommerce.dtos.response.ProductSearchResultsDTO;
 import com.vianavitor.ecommerce_tech.ecommerce.entities.enums.ProductCategory;
 import com.vianavitor.ecommerce_tech.ecommerce.services.ProductService;
+import com.vianavitor.ecommerce_tech.ecommerce.services.CompatibilityCheckService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
@@ -15,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -22,12 +29,15 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
     @Mock
     private ProductService service;
+    @Mock
+    private CompatibilityCheckService compatibilityCheckService;
     @InjectMocks
     private ProductController controller;
     private MockMvc mvc;
@@ -36,6 +46,28 @@ class ProductControllerTest {
     void setUp() {
         mvc = MockMvcBuilders.standaloneSetup(controller)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
+    }
+
+    @Test
+    void compatibilityEndpointUsesDedicatedServiceAndPreservesResponse() throws Exception {
+        var report = PcComponentsReportDTO.builder()
+                .cpu(new CompatibleReportDTO(true, "CPU", null)).build();
+        when(compatibilityCheckService.checkPcComponentsCompatibility(any(PcComponentsDTO.class)))
+                .thenReturn(new PcCompatibilityCheckResultDTO(report, ""));
+
+        mvc.perform(post("/api/products/compatibility-check")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motherboard\":{},\"psu\":{},\"cpu\":{\"socket\":\"AM5\"}}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.componentsReport.cpu.pcComponentName").value("CPU"))
+                .andExpect(jsonPath("$.componentsReport.cpu.isPcComponentCompatible").value(true))
+                .andExpect(jsonPath("$.extraInformation").value(""))
+                .andExpect(jsonPath("$.areAllComponentsCompatible").value(true))
+                .andExpect(jsonPath("$.compatibleComponentsCount").value(1))
+                .andExpect(jsonPath("$.incompatibleComponentsCount").value(0));
+        verify(compatibilityCheckService).checkPcComponentsCompatibility(argThat(request ->
+                request.getCpu().getSocket().equals("AM5")
+                        && request.getMotherboard() != null && request.getPsu() != null));
     }
 
     @ParameterizedTest
